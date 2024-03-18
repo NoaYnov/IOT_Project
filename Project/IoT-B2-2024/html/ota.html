@@ -1,0 +1,148 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="fr">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=11"/>
+<meta name="generator" content="Doxygen 1.9.6"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>IoT-B2-2024: Over The Air &amp; Remote Debug</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr id="projectrow">
+  <td id="projectalign">
+   <div id="projectname">IoT-B2-2024
+   </div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Généré par Doxygen 1.9.6 -->
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+/* @license-end */
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function() {
+  initMenu('',true,false,'search.php','Recherche');
+  $(document).ready(function() { init_search(); });
+});
+/* @license-end */
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(document).ready(function(){initNavTree('ota.html',''); initResizable(); });
+/* @license-end */
+</script>
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Chargement...</div>
+<div class="SRStatus" id="Searching">Recherche...</div>
+<div class="SRStatus" id="NoMatches">Aucune correspondance</div>
+</div>
+</div>
+</div>
+</div>
+
+<div><div class="header">
+  <div class="headertitle"><div class="title">Over The Air &amp; Remote Debug </div></div>
+</div><!--header-->
+<div class="contents">
+<div class="textblock"><p>Mise à jour du firmware et accès aux logs, sans port série.</p>
+<p>Jusqu'ici notre objet connecté est resté relité à notre ordinateur via un câble USB pour le téléversement du code et l'accès aux messages, le tout via le port série. Très bien, mais un objet connecté a vocation à être débranché du câble USB qui le relie à un ordinateur et vivre sa vie à distance et en tout autonomie. </p><div class="image">
+<img src="ESP32-OTA.png" alt="" width="600px"/>
+</div>
+<h2><a class="anchor" id="updateOTA"></a>
+Mise à jour du firmware</h2>
+<p>Toutefois, une déconnecté de l'ordinateur, avec une alimentation électrique et le réseau WiFi, comme réaliser des mises à jour du firmware sans port série ? Avec la bibliothèque <b>Over The Air</b> ! Cette dernière permet d'ajouter des ports réseau en plus des ports série et de téléverser via l'IDE Arduino de la même façon.</p>
+<p>Lorsque vous téléverser votre nouveau code à distance, la carte enregistre votre nouveau code dans sa mémoire alors que le code actuel est toujours présent et actif. Une fois le téléchargement terminé alors la carte redémarre, installe et éxecute votre nouveau code. Cela nécessite donc d'avoir dimensionné votre espace mémoire de façon à pouvoir stocker le nouveau code. </p><div class="image">
+<img src="ESP32-OTA-Sketch.png" alt="" width="600px"/>
+</div>
+<dl class="section note"><dt>Note</dt><dd>Avant de téléverser ce programme pour la première fois via la liaison série, vérifier dans le menu "Outils" que la "Flash size" sélectionnée correspond bien à votre matériel. Classiquement pour un ESP32, il faut renseigner 4M (1M SPIFFS); on maximise ainsi l'espace disponible pour OTA, cf. <a class="el" href="spiffs.html">SPIFFS</a> . Au regard de la taille de votre programme et de vos données dans le SPIFFS, vous pouvez également sélectionner le mode Minimal SPIFFS (1.9 MB App with OTA/190 KB SPIFFS).</dd></dl>
+<p>Dès que votre firmware intégrant la fonctionnalité Over The Air est installé sur votre ESP32, vous disposez d'un nouveau "Port" qui n'est pas un port série mais un port réseau que vous pouvez utiliser pour téléverser le firmware. A partir de ce moment là, vous pouvez donc débrancher le cable USB (port série) et donc continuer à pouvoir téléverser votre firmware. </p><dl class="section note"><dt>Note</dt><dd>L'ordinateur (avec son environnement de développement) doit avoir accès à votre objet connecté au travers du réseau. Par là, ils doivent être tous les 2 présents sur le même sous-réseau. !</dd></dl>
+<p>Pour éviter que toute personne ayant accès au réseau WiFi sur lequel est branché votre objet puisse téléverser un nouveau firmware, il est préférable d'ajouter un peu de sécurité en demandant un mot de passe lors des mises à jour.</p>
+<h2><a class="anchor" id="remote"></a>
+Debug à distance</h2>
+<p>S'affranchir de la liaison série est appréciable, toutefois on perd en même temps une fonctionnalité très utile : l'affichage des messages de debug ! Une solution pour palier à ce problème est l'utilisation de la bibliothèque RemoteDebug qui permet de se connecter en telnet à notre carte et de récupérer les messages par ce biais.</p>
+<dl class="section note"><dt>Note</dt><dd><b>Tous</b> les messages de debug qui sont présents dans votre code doivent être modifiés pour appeler les fonctions de génération de debug de la bibliothèque RemoteDebug.</dd></dl>
+<p>Il y a possibilités de créer des messages avec différents niveaux de logs, les voici par niveau de détail :</p><ul>
+<li>Verbose</li>
+<li>Debug</li>
+<li>Info</li>
+<li>Warnings</li>
+<li>Errors Quand vous sélectionner un niveau de détail, tous les messages de niveau "inférieur" sont également visibles.</li>
+</ul>
+<p>Une fois ce firmware téléversé:</p><ul>
+<li>Dans le menu "Outils/Port", vérifier que le nouveau port &lt;OTA_HOSTNAME&gt; at &lt;IP ADDRESS&gt; apparaît dans la liste des "Ports réseau".</li>
+<li>Si tel est le cas, vous pouvez débrancher votre objet du port série de votre ordinateur et le brancher à une autre source d'alimentation.</li>
+<li>Il n'apparait donc plus dans la liste de vos "Ports série" mais est toujours présent dans les "Ports réseau".</li>
+<li>Vous pouvez désormais téléversez vos nouveaux firmwares <b>Over</b> <b>The</b> <b>Air</b>.</li>
+<li>Pour accéder aux logs, 2 possibilités :<ul>
+<li>Ouvrez un terminal et saisissez "telnet &lt;adresse IP&gt;" pour y voir apparaître vos messages de logs, ou utilisez un logiciel du type Putty : <a href="https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html">https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html</a></li>
+<li>Remote Debug embarque une bibliothèque de web socket qui permet d'accéder aux logs. Télécharger la Web App (le zip décompressé de <a href="https://github.com/JoaoLopesF/RemoteDebugApp">https://github.com/JoaoLopesF/RemoteDebugApp</a>) sur votre ordinateur et lancer index.html pour pouvoir vous connecter à votre carte à l'aide d'une web socket et récupérer les logs.</li>
+</ul>
+</li>
+</ul>
+<h2><a class="anchor" id="otalib"></a>
+Librairies nécessaires</h2>
+<p>Bibliothèques à installer pour utiliser ce module :</p><ul>
+<li>Arduino OTA by Arduino Juraj Andrassy : <a href="https://github.com/jandrassy/ArduinoOTA">https://github.com/jandrassy/ArduinoOTA</a></li>
+<li>RemoteDebug by Joao Lopez : <a href="https://github.com/JoaoLopesF/RemoteDebug">https://github.com/JoaoLopesF/RemoteDebug</a></li>
+</ul>
+<dl class="section note"><dt>Note</dt><dd>Vous devriez rencontrer une erreur de compilation du type <pre class="fragment">.../libraries/RemoteDebug/src/utility/WebSockets.cpp:42:10: fatal error: hwcrypto/sha.h: No such file or directory</pre> Si c'est le cas, pour corriger le problème, éditez le fichier en question et remplacer hwcrypto/sha.h par sha/sha_parallel_engine.h !</dd></dl>
+<p>Fichier <a class="el" href="_my_o_t_a_8h.html">MyOTA.h</a> </p>
+</div></div><!-- contents -->
+</div><!-- PageDoc -->
+</div><!-- doc-content -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="footer">Généré par <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.6 </li>
+  </ul>
+</div>
+</body>
+</html>
