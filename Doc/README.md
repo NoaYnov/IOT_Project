@@ -1,5 +1,5 @@
 
-# Eval :
+# Evalutaion :
 -	WiFi - 3 points
 -	MQTT / Adafruit - 5 points
 -	Serveur Web - 3 points
@@ -61,4 +61,6 @@
 -		Un cas d'usage IoT incluant l'interaction de 2 objets via MQTT est présenté avec une image et du texte - 3 points
 -		La liste des fonctionnalités développées et démontrées est précisée - 2 points
 -		Les fonctionnalités développées et démontrées sont documentées - 3 points
+
+
 
