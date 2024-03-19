@@ -51,8 +51,8 @@
 // Connexion Adafruit
 #define IO_SERVER         "io.adafruit.com"
 #define IO_SERVERPORT     1883
-#define IO_USERNAME       "maximebui"
-#define IO_KEY            "0d12aa10bfca4ed5af13bb71f1213005"
+#define IO_USERNAME       "user123841294"
+#define IO_KEY            "aio_Myzr43AsYOGv7TjiYhUh9gZxj43E"
 // Feeds
 #define FEED_SLIDER       "/feeds/slider"
 #define FEED_ONOFF        "/feeds/onoff"
