@@ -102,10 +102,28 @@ void handleConfig() {
   // Construction de la réponse HTML
   String out = "";
   out += "<html><head><meta http-equiv='refresh' content='30'/>";
-  out += "<title>YNOV - Projet IoT B2</title>";
-  out += "<style>body { background-color: #cccccc; font-family: Arial, Helvetica, Sans-Serif; Color: #000088; }</style>";
+  out += "<title>Formulaire SSID et Mot de passe</title>";
+  out += "<style>body {font-family: Arial, sans-serif;background-color: #f0f0f0;margin: 0;padding: 20px;}h1 {text-align: center;color: #333;}form {background-color: #fff;border-radius: 5px;padding: 20px;max-width: 400px;margin: 0 auto;}label {font-weight: bold;color: #666;}input[type='text'],input[type='password'],input[type='submit'] {width: 100%;padding: 10px;margin-bottom: 15px;border: 1px solid #ccc; border-radius: 4px;box-sizing: border-box;}input[type='submit'] {background-color: #4CAF50;color: white;border: none;cursor: pointer;}input[type='submit']:hover {background-color: #45a049;</style>";
   out += "</head><body>";
   out += "<h1>Page de config</h1><br>";
+  out += "<form action='#' method='post'>";
+  out += "<label for='ssid'>SSID :</label><br>";
+  out += "<input type='text' id='ssid' name='ssid'><br><br>";
+  out += "<label for='password'>Mot de passe :</label><br>";
+  out += "<input type='password' id='password' name='password'><br><br>";
+  out += "<label for='ap_ssid'>Access point SSID :</label><br>";
+  out += "<input type='text' id='ap_ssid' name='ap_ssid'><br><br>";
+  out += "<label for='ap_mdp'>Mot de passe :</label><br>";
+  out += "<input type='password' id='ap_mdp' name='ap_mdp'><br><br>";
+  out += "<label for='seconds'>Secondes :</label>";
+  out += "<input type='range' id='seconds' name='seconds' min='0' max='60' value='0' step='1'>";
+  out += "<output id='outputSeconds'>0</output> secondes<br><br>";
+  out += "<label for='days'>Jours :</label>";
+  out += "<input type='range' id='days' name='days' min='0' max='30' value='0' step='1'>";
+  out += "<output id='outputDays'>0</output> jours<br><br>";
+  out += "<input type='submit' value='Envoyer'>";
+  out += "</form>";
+  out += "<script>const secondsInput = document.getElementById('seconds');const daysInput = document.getElementById('days');const outputSeconds = document.getElementById('outputSeconds');const outputDays = document.getElementById('outputDays');secondsInput.addEventListener('input', function() {outputSeconds.textContent = this.value;});daysInput.addEventListener('input', function() {outputDays.textContent = this.value;});</script>";
   out += "</body></html>";
 
   // Envoi de la réponse HTML
