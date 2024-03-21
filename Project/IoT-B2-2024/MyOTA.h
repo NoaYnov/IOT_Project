@@ -92,8 +92,8 @@
 #include <ArduinoOTA.h>
 #include <RemoteDebug.h>
 
-#define OTA_HOSTNAME  "ESP32_Maxime"
-#define OTA_PASSWORD  "MonMotDePasse"
+#define OTA_HOSTNAME  "ESP32_Valentin"
+#define OTA_PASSWORD  "1234567890"
 
 RemoteDebug Debug;
 Ticker debugTicker;
