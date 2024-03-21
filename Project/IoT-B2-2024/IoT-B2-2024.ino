@@ -62,8 +62,8 @@ int i=0;              // pour la loop
 #include "MyDeepSleep.h"    // Deep Sleep
 #include "MyTicker.h"       // Tickers
 #include "MyAdafruitIO.h"   // Adafruit MQTT
-//#include "MyBLE.h"          // BLE
 #include "MyOTA.h"          // Over the air
+#include "MyBLE.h"          // BLE
 //#include "MyLED.h"          // LED
 //#include "MyDHT.h"          // Capteur de température et humidité
 //#include "MyCore0.h"        // Utilisation du Core 0
@@ -94,8 +94,8 @@ void setup() {
   setupNTP();         // Initialisation de la connexion avec le serveur NTP (heure)
 //  getNTP();           // Récupération de l'heure
   setupAdafruitIO();  // Initialisation Adafruit MQTT
-//  setupBLEServer();   // Initialisation du serveur BLE pour publier un ID
-//  setupBLEClient();   // Initialisation du client BLE pour scanner les ID à proximité
+  setupBLEServer();   // Initialisation du serveur BLE pour publier un ID
+  setupBLEClient();   // Initialisation du client BLE pour scanner les ID à proximité
   setupOTA();         // Initialisation du mode Over The Air
 //  setupLED();         // Initialisation de la LED
 //  setupDhtSensor();   // Initialisation du capteur DHT
@@ -113,7 +113,7 @@ void setup() {
 void loop() {
   loopWebServer();
   loopAdafruitIO();
-//  loopBLEClient();
+  loopBLEClient();
   loopOTA();
 //  playWithLED();
 //  getDhtData();
