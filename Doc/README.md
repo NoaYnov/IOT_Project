@@ -1,13 +1,10 @@
 
-# Evalutaion :
+# Evaluation :
 -	WiFi - 3 points
 -	MQTT / Adafruit - 5 points
 -	Serveur Web - 3 points
 -	Système de fichier + JSON - 3 points
--	Capteurs/LED - 3 points
 -	Network Tranport Protocol - 2 points
--	Ticker et/ou Time - 2 points
--	Deep Sleep - 2 points
 -	Bluetooth - 3 points
 -	Interaction type IFTTT - 3 points
 -	Over The Air - 4 points
@@ -37,17 +34,10 @@
 -		Si un de mes contacts à suivre est malade alors mon état de santé passe à "cas contact", si je ne suis pas déjà malade et diffuse l'information à mes contacts à suivre
 -		Je suis notifié (notification téléphone / email / LED ou autre moyen) que mon état de santé est passé à "Cas contact"
 
-####	Capteur :
-
--		Mon objet capte et remonte régulièrement (paramétrable) une information d'un capteur (exemple capteur de température)
--		Un seuil (paramétrable) est défini, qui une fois franchi me fait passer à l'état malade (exemple température > 39°C)
-
 ## En tant qu'administrateur :
 
 -	Je peux mettre à jour le firmware des objets à distance
 -	Je peux activer et lire les traces sur les objets à distance
-
-
 
 
 
