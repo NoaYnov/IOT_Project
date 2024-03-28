@@ -96,8 +96,23 @@ void handleScan() {
 /**
  * Fonction de gestion de la route /config
  */
+/**
+ * Fonction de gestion de la route /config
+ */
 void handleConfig() {
   MYDEBUG_PRINTLN("-WEBSERVER : requete config");
+
+  // Check if the form has been submitted
+  if (monWebServeur.args() > 0) {
+    // Form data was submitted, print it in the console
+    Serial.println("Form submitted:");
+    for (uint8_t i = 0; i < monWebServeur.args(); i++) {
+      Serial.print(monWebServeur.argName(i));
+      Serial.print(": ");
+      Serial.println(monWebServeur.arg(i));
+    }
+    Serial.println();
+  }
 
   // Construction de la réponse HTML
   String out = "";
