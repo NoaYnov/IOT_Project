@@ -1,0 +1,8 @@
+{
+  "ssid": "your-ssid",
+  "password": "your-password",
+  "APssid": "your-AP-ssid",
+  "APpassword": "your-AP-password",
+  "minutes_stand_by": 5,
+  "days_of_historic": 30
+}

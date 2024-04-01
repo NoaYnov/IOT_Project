@@ -103,15 +103,34 @@ void setupSPIFFS(bool bFormat = false){
         if (error){
           MYDEBUG_PRINTLN("-SPIFFS : Impossible de parser le JSON");          
         } else {
-          MYDEBUG_PRINTLN("-JSON: Fichier parsé");
-          String parametre1 = jsonDocument["ssid"];
-          String parametre2 = jsonDocument["password"];
-          sstation_ssid = parametre1;
-          sstation_password = parametre2;
-          MYDEBUG_PRINT("-JSON [ssid] : ");
-          MYDEBUG_PRINTLN(sstation_ssid);
-          MYDEBUG_PRINT("-JSON [password] : ");
-          MYDEBUG_PRINTLN(sstation_password);
+            MYDEBUG_PRINTLN("-JSON: Fichier parsé");
+            String parametre1 = jsonDocument["ssid"].as<String>();
+            String parametre2 = jsonDocument["password"].as<String>();
+            String parametre3 = jsonDocument["APssid"].as<String>();
+            String parametre4 = jsonDocument["APpassword"].as<String>();
+            int parametre5 = jsonDocument["minutes_stand_by"].as<int>();
+            int parametre6 = jsonDocument["days_of_historic"].as<int>();
+
+            sstation_ssid = parametre1;
+            sstation_password = parametre2;
+            aap_ssid = parametre3;
+            aap_password = parametre4;
+            minutes_stand_by = parametre5;
+            days_of_historic = parametre6;
+
+            MYDEBUG_PRINT("-JSON [ssid] : ");
+            MYDEBUG_PRINTLN(sstation_ssid);
+            MYDEBUG_PRINT("-JSON [password] : ");
+            MYDEBUG_PRINTLN(sstation_password);
+            MYDEBUG_PRINT("-JSON [APssid] : ");
+            MYDEBUG_PRINTLN(aap_ssid);
+            MYDEBUG_PRINT("-JSON [APpassword] : ");
+            MYDEBUG_PRINTLN(aap_password);
+            MYDEBUG_PRINT("-JSON [minutes_stand_by] : ");
+            MYDEBUG_PRINTLN(minutes_stand_by);
+            MYDEBUG_PRINT("-JSON [days_of_historic] : ");
+            MYDEBUG_PRINTLN(days_of_historic);
+           
         }
       }
       configFile.close();
@@ -124,8 +143,12 @@ void setupSPIFFS(bool bFormat = false){
         MYDEBUG_PRINTLN("-SPIFFS: Fichier créé");
         DynamicJsonDocument jsonDocument(512);
         // Exemple de 3 paramètres
-        jsonDocument["ssid"] = String("");
-        jsonDocument["password"] = String("");
+        jsonDocument["ssid"] = String("DefaultSSID");
+        jsonDocument["password"] = String("DefaultPassword");
+        jsonDocument["APssid"] = String("ESP32_AP");
+        jsonDocument["APpassword"] = String("AP_Password");
+        jsonDocument["minutes_stand_by"] = int(5);
+        jsonDocument["days_of_historic"] = int(30);
         // Sérialisation du JSON dans le fichier de configuration
         if (serializeJson(jsonDocument, configFile) == 0) {
           MYDEBUG_PRINTLN("-SPIFFS : Impossible d'écrire le JSON dans le fichier de configuration");

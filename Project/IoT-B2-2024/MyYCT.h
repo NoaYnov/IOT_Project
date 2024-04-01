@@ -1,21 +1,12 @@
-#include <BLEDevice.h>  //
-#include <BLEUtils.h>   // BLE
-#include <BLEServer.h>  //
-#include <ArduinoOTA.h> // OTA
-#include <RemoteDebug.h>  // Remote Debug
-#include <WiFi.h>         // WiFi
-#include "esp_wpa2.h"     //
-#include "Adafruit_MQTT.h"         // Adafruit
-#include "Adafruit_MQTT_Client.h"  //
-#include "SPIFFS.h"      // SPIFFS
-#include <ArduinoJson.h> //
-
 // Variables to use :
 // set up your variables (for exemple the parameters from Adafruit or the contact/positive list)
 
 // ------------------------------------------------------------------------------------------------
 // Main Functions for our application
 // ------------------------------------------------------------------------------------------------
+
+// Variables
+
 
 
 void onGetContact(){

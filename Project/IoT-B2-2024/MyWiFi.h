@@ -94,6 +94,10 @@ const char* ap_ssid     = "ESP32_Valentin";      // Nom du réseau WiFi pour acc
 const char* ap_password = "1234567890";        // Mot de passe du réseau WiFi pour accéder à mon serveur web
 String sstation_ssid;
 String sstation_password;
+String aap_ssid;
+String aap_password;
+int minutes_stand_by;
+int days_of_historic;
 
 // ------------------------------------------------------------------------------------------------
 // CONFIGURATION DU WIFI

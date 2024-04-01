@@ -67,6 +67,7 @@ int i=0;              // pour la loop
 //#include "MyLED.h"          // LED
 //#include "MyDHT.h"          // Capteur de température et humidité
 //#include "MyCore0.h"        // Utilisation du Core 0
+#include "MyYCT.h"
 // ------------------------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------------------------
