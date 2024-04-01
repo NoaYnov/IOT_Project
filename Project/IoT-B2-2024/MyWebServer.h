@@ -31,6 +31,7 @@
 // librairies nécessaires 
 #include <WebServer.h>
 
+
 // Variables
 WebServer monWebServeur(80);           // Serveur web sur le port 80
 
@@ -52,6 +53,7 @@ void handleRoot() {
   out +="<li><a href=\"adafruit\"> Adafruit</a></li>";
   out +="<li><a href=\"format\"> Formater le SPIFFS</a></li>";
   out +="<li><a href=\"config\"> Configurer le WiFi</a></li></ul>";
+  out +="<li><a href=\"contact_tracer\">Vos Contacts</a></li></ul>";
   out += "</body></html>";
 
   // Envoi de la réponse en HTML
@@ -130,15 +132,15 @@ void handleConfig() {
   out += "<input type='text' id='ap_ssid' name='ap_ssid'><br><br>";
   out += "<label for='ap_mdp'>Mot de passe :</label><br>";
   out += "<input type='password' id='ap_mdp' name='ap_mdp'><br><br>";
-  out += "<label for='seconds'>Secondes :</label>";
+  out += "<label for='minutes'>minutes</label>";
   out += "<input type='range' id='seconds' name='seconds' min='0' max='60' value='0' step='1'>";
-  out += "<output id='outputSeconds'>0</output> secondes<br><br>";
-  out += "<label for='days'>Jours :</label>";
+  out += "<output id='outputSeconds'>0</output>Temps proche d'une autre carte avant ajout aux contacts<br><br>";
+  out += "<label for='days'>jours</label>";
   out += "<input type='range' id='days' name='days' min='0' max='30' value='0' step='1'>";
-  out += "<output id='outputDays'>0</output> jours<br><br>";
+  out += "<output id='outputDays'>0</output>Nombres de jours avant suppression de la liste de contact<br><br>";
   out += "<input type='submit' value='Envoyer'>";
   out += "</form>";
-  out += "<script>const secondsInput = document.getElementById('seconds');const daysInput = document.getElementById('days');const outputSeconds = document.getElementById('outputSeconds');const outputDays = document.getElementById('outputDays');secondsInput.addEventListener('input', function() {outputSeconds.textContent = this.value;});daysInput.addEventListener('input', function() {outputDays.textContent = this.value;});</script>";
+  out += "<script>const secondsInput = document.getElementById('minutes');const daysInput = document.getElementById('days');const outputSeconds = document.getElementById('outputSeconds');const outputDays = document.getElementById('outputDays');secondsInput.addEventListener('input', function() {outputSeconds.textContent = this.value;});daysInput.addEventListener('input', function() {outputDays.textContent = this.value;});</script>";
   out += "</body></html>";
 
   // Envoi de la réponse HTML
@@ -187,6 +189,64 @@ void handleAdafruit() {
   monWebServeur.send(200, "text/html", out);
 }
 
+void handleContactTracer() {
+  // Read positive list from positivelist.json
+  DynamicJsonDocument positiveListDocument(512);
+  if (SPIFFS.exists(strPositiveListFile)) {
+    positiveListFile = SPIFFS.open(strPositiveListFile, "r");
+    if (positiveListFile) {
+      DeserializationError error = deserializeJson(positiveListDocument, positiveListFile);
+      if (!error) {
+        JsonArray positiveListArray = positiveListDocument["positive_list"].as<JsonArray>();
+        String contactList[positiveListArray.size()];
+
+        MYDEBUG_PRINTLN("-WEBSERVER : requete contact tracer");
+        String out = "";
+        int n = positiveListArray.size();
+        MYDEBUG_PRINT("- Number of contacts: ");
+        MYDEBUG_PRINTLN(n);
+
+        out += "<html><head><meta http-equiv='refresh' content='5'/>";
+        out += "<title>YNOV - Projet IoT B2</title>";
+        out += "<style>body { background-color: #cccccc; font-family: Arial, Helvetica, Sans-Serif; Color: #000088; }</style>";
+        out += "</head><body>";
+        out += "<h1>Page des contacts</h1>";
+        out += "<h2>Cette page liste les id de toutes les personnes que vous avez rencontrees et qui se sont declares positives.</h2><br>";
+
+        // Integration des reseaux WiFi trouves dans la page HTML
+        if (n == 0) {
+          MYDEBUG_PRINTLN("- AUCUN Contact Trouvé");
+        } else {
+          out += "<ol>";
+          int i = 0;
+          for (JsonVariant id : positiveListArray) {
+            contactList[i] = id.as<String>();
+            out += "<li>"+ contactList[i] +"</li>";
+            i++;
+          }
+          out += "</ol>";
+        }
+
+        // Fin de la réponse HTML
+        out += "</body></html>";
+
+        // Envoi de la page HTML
+        MYDEBUG_PRINTLN("- Sending HTML response");
+        monWebServeur.send(200, "text/html", out);
+
+      } else {
+        MYDEBUG_PRINTLN("-SPIFFS: Error parsing positivelist.json");
+      }
+      positiveListFile.close();
+    } else {
+      MYDEBUG_PRINTLN("-SPIFFS: Error opening positivelist.json");
+    }
+  } else {
+    MYDEBUG_PRINTLN("-SPIFFS: positivelist.json does not exist");
+  }
+}
+
+
 /**
  * En cas d'erreur de route, renvoi d'un message d'erreur 404
  */
@@ -225,6 +285,7 @@ void setupWebServer(){
   monWebServeur.on("/scan", handleScan);
   monWebServeur.on("/config", handleConfig);
   monWebServeur.on("/adafruit", handleAdafruit);
+  monWebServeur.on("/contact_tracer", handleContactTracer);
   monWebServeur.onNotFound(handleNotFound);
   monWebServeur.on("/format", handleFormat);            // A ajouter quand le SPIFFFS est activé
 
