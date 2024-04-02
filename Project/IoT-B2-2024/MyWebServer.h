@@ -206,26 +206,52 @@ void handleContactTracer() {
         MYDEBUG_PRINT("- Number of contacts: ");
         MYDEBUG_PRINTLN(n);
 
-        out += "<html><head><meta http-equiv='refresh' content='5'/>";
-        out += "<title>YNOV - Projet IoT B2</title>";
-        out += "<style>body { background-color: #cccccc; font-family: Arial, Helvetica, Sans-Serif; Color: #000088; }</style>";
-        out += "</head><body>";
-        out += "<h1>Page des contacts</h1>";
-        out += "<h2>Cette page liste les id de toutes les personnes que vous avez rencontrees et qui se sont declares positives.</h2><br>";
-
-        // Integration des reseaux WiFi trouves dans la page HTML
-        if (n == 0) {
-          MYDEBUG_PRINTLN("- AUCUN Contact Trouvé");
-        } else {
-          out += "<ol>";
-          int i = 0;
-          for (JsonVariant id : positiveListArray) {
+  out+= "<!DOCTYPE html>";
+  out+= "<html lang=\"fr\">";
+  out+= "<head>";
+  out+= "    <meta charset=\"UTF-8\">";
+  out+= "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">";
+  out+= "    <title>Liste des contacts</title>";
+  out+= "<style>body{font-family:Arial,sans-serif;margin:0;padding:0;background-color:#f0f0f0;}.container{max-width:800px;margin:20px auto;padding:20px;border:1px solid #ccc;border-radius:8px;box-shadow:0 0 10px rgba(0,0,0,0.1);display:flex;justify-content:space-between;background-color:#fff;}h1{font-size:24px;margin-bottom:20px;text-align:center;}.contacts-list li{display:flex;flex-direction:column;list-style:none;padding:0;padding-right:500px;width:100%;max-width:300px;margin-bottom:10px;padding:15px;border-radius:4px;background-color:#e6dfdf;white-space:normal;border:black 1px solid;}.positive-covid li{margin:0%;background-color:#5d5c5c;color:#fff;margin-bottom:10px;font-family:Arial,sans-serif;width:100%;}.contacts-list span{font-weight:bold;}.display{display:flex;justify-content:space-between;flex-direction:row;}</style>";
+  out+= "</head>";
+  out+= "<body>";
+  out+= "<div class=\"container\">";
+  out+= "    <div>";
+  out+= "        <h1>Liste des contacts</h1>"; // Titre plus grand
+  out+= "        <ul class=\"contacts-list\">";
+  out+= "            <li>";
+  out+= "                <span class=\"display\">";
+  out+= "                    <span>ESP32 NOA</span>";
+  out+= "                    <span>2024-03-25</span>";
+  out+= "                </span>";
+  out+= "            </li>";
+  out+= "            <li>";
+  out+= "                <span class=\"display\">";
+  out+= "                    <span>ESP32 VALENTIN</span>";
+  out+= "                    <span>2024-03-26</span>";
+  out+= "                </span>";
+  out+= "            </li>";
+  out+= "        </ul>";
+  out+= "    </div>";
+  out+= "    <div>";
+  out+= "        <h1>Liste des contacts positifs au COVID-19</h1>"; // Titre plus grand
+  out+= "        <ul class=\"contacts-list positive-covid\">";
+    if (n == 0) {
+        MYDEBUG_PRINTLN("- AUCUN Contact Trouvé");
+      } else {
+        int i = 0;
+        for (JsonVariant id : positiveListArray) {
             contactList[i] = id.as<String>();
             out += "<li>"+ contactList[i] +"</li>";
             i++;
-          }
-          out += "</ol>";
         }
+      }
+  out+= "        </ul>";
+  out+= "    </div>";
+  out+= "</div>";
+  out+= "</body>";
+  out+= "</html>";
+  // Intégration des réseaux WiFi trouvés dans la page HTML
 
         // Fin de la réponse HTML
         out += "</body></html>";
