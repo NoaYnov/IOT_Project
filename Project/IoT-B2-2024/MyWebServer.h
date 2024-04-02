@@ -52,7 +52,7 @@ void handleRoot() {
   out +="<li><a href=\"scan\"> Scanner le WiFi</a></li>";
   out +="<li><a href=\"adafruit\"> Adafruit</a></li>";
   out +="<li><a href=\"format\"> Formater le SPIFFS</a></li>";
-  out +="<li><a href=\"config\"> Configuration de la carte</a></li></ul>";
+  out +="<li><a href=\"config\"> Configuration de la carte</a></li>";
   out +="<li><a href=\"contact_tracer\">Vos Contacts</a></li></ul>";
   out += "</body></html>";
 
