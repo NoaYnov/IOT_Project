@@ -203,6 +203,7 @@ void setupSPIFFS(bool bFormat = false){
                     //Gestion contenu de fichier JSON
                     JsonArray contactsArray = jsonDocument["list_of_contacts"].as<JsonArray>();
                     for (JsonVariant contact : contactsArray) {
+                        MYDEBUG_PRINTLN("Contact : ");
                         String id1 = contact["id-1"].as<String>();
                         String id2 = contact["id-2"].as<String>();
                         String timestamp = contact["timestamp"].as<String>();
@@ -286,5 +287,186 @@ void setupSPIFFS(bool bFormat = false){
         //SPIFFS.end();
     } else {
         MYDEBUG_PRINT("-SPIFFS : Impossible de monter le système de fichier");
+    }
+}
+
+//create a config object
+
+struct Config {
+    String ssid;
+    String password;
+    String APssid;
+    String APpassword;
+    int minutes_stand_by;
+    int days_of_historic;
+};
+
+void saveConfig(struct Config config){
+    configFile = SPIFFS.open(strConfigFile, "r");
+    if (configFile) {
+        MYDEBUG_PRINTLN("-SPIFFS : Fichier ouvert");
+        DynamicJsonDocument jsonDocument(512);
+        DeserializationError error = deserializeJson(jsonDocument, configFile);
+        if (error) {
+            MYDEBUG_PRINTLN("-SPIFFS: Error parsing config.json");
+        } else {
+            jsonDocument["ssid"] = config.ssid;
+            jsonDocument["password"] = config.password;
+            jsonDocument["APssid"] = config.APssid;
+            jsonDocument["APpassword"] = config.APpassword;
+            jsonDocument["minutes_stand_by"] = config.minutes_stand_by;
+            jsonDocument["days_of_historic"] = config.days_of_historic;
+            if (serializeJson(jsonDocument, configFile) == 0) {
+                MYDEBUG_PRINTLN("-SPIFFS: Impossible d'écrire le JSON dans le fichier config.json");
+            }
+            configFile.close();
+            MYDEBUG_PRINTLN("-SPIFFS: Fichier fermé");
+        }
+    } else {
+        MYDEBUG_PRINTLN("-SPIFFS: Error opening config.json");
+    }
+}
+
+struct Config loadConfig(){
+    configFile = SPIFFS.open(strConfigFile, "r");
+    struct Config config;
+    if (configFile) {
+        MYDEBUG_PRINTLN("-SPIFFS : Fichier ouvert");
+        DynamicJsonDocument jsonDocument(512);
+        DeserializationError error = deserializeJson(jsonDocument, configFile);
+        if (error) {
+            MYDEBUG_PRINTLN("-SPIFFS: Error parsing config.json");
+        } else {
+            config.ssid = jsonDocument["ssid"].as<String>();
+            config.password = jsonDocument["password"].as<String>();
+            config.APssid = jsonDocument["APssid"].as<String>();
+            config.APpassword = jsonDocument["APpassword"].as<String>();
+            config.minutes_stand_by = jsonDocument["minutes_stand_by"].as<int>();
+            config.days_of_historic = jsonDocument["days_of_historic"].as<int>();
+        }
+        configFile.close();
+        MYDEBUG_PRINTLN("-SPIFFS: Fichier fermé");
+    } else {
+        MYDEBUG_PRINTLN("-SPIFFS: Error opening config.json");
+    }
+    return config;
+}
+
+unsigned long calculateEpochTime(String timestamp) {
+    // Split the timestamp into date and time
+    int splitT = timestamp.indexOf("T");
+    String dateStr = timestamp.substring(0, splitT);
+    String timeStr = timestamp.substring(splitT + 1);
+
+    // Convert date and time strings to integers
+    int year = dateStr.substring(0, 4).toInt();
+    int month = dateStr.substring(5, 7).toInt();
+    int day = dateStr.substring(8, 10).toInt();
+    int hour = timeStr.substring(0, 2).toInt();
+    int minute = timeStr.substring(3, 5).toInt();
+    int second = timeStr.substring(6, 8).toInt();
+
+    // Calculate and return epoch time
+    struct tm tm;
+    tm.tm_year = year - 1900;
+    tm.tm_mon = month - 1;
+    tm.tm_mday = day;
+    tm.tm_hour = hour;
+    tm.tm_min = minute;
+    tm.tm_sec = second;
+    time_t epochTime = mktime(&tm);
+    return static_cast<unsigned long>(epochTime);
+}
+
+int calculateDifferenceInDays(unsigned long currentTime, unsigned long contactTime) {
+    // Calculate difference in seconds
+    unsigned long diffSeconds = currentTime - contactTime;
+    // Convert seconds to days
+    int diffDays = diffSeconds / 86400;
+    return diffDays;
+}
+
+void checkContacts(){
+    contactsFile = SPIFFS.open(strContactsFile, "r+");
+    if (contactsFile) {
+        MYDEBUG_PRINTLN("-SPIFFS : Fichier ouvert");
+        DynamicJsonDocument jsonDocument(1024);
+        DeserializationError error = deserializeJson(jsonDocument, contactsFile);
+        if (error) {
+            MYDEBUG_PRINTLN("-SPIFFS: Error parsing contacts.json");
+        } else {
+            JsonArray contactsArray = jsonDocument["list_of_contacts"].as<JsonArray>();
+            struct Config config = loadConfig();
+            int days = config.days_of_historic;
+            unsigned long currentTime = timeClient.getEpochTime();
+            for (int i = 0; i < contactsArray.size(); i++) {
+                unsigned long contactTime = calculateEpochTime(contactsArray[i]["timestamp"].as<String>());
+                MYDEBUG_PRINTLN("Contact Time: " + String(contactTime));
+                int diff = calculateDifferenceInDays(currentTime, contactTime);
+                MYDEBUG_PRINTLN("Difference in days: " + diff);
+                if (diff > days) {
+                    contactsArray.remove(i);
+                    i--; // Adjust index since we removed an element
+                } else {
+                    MYDEBUG_PRINTLN("Contact still valid");
+                }
+            }
+            contactsFile.seek(0); // Move cursor to the beginning of the file
+            if (serializeJson(jsonDocument, contactsFile) == 0) {
+                MYDEBUG_PRINTLN("-SPIFFS: Impossible d'écrire le JSON dans le fichier contacts.json");
+            }
+            contactsFile.close();
+            MYDEBUG_PRINTLN("-SPIFFS: Fichier fermé");
+        }
+    } else {
+        MYDEBUG_PRINTLN("-SPIFFS: Error opening contacts.json");
+    }
+}
+
+void saveContact(String id1, String id2, String timestamp){
+    contactsFile = SPIFFS.open(strContactsFile, "r");
+    if (contactsFile) {
+        MYDEBUG_PRINTLN("-SPIFFS : Fichier ouvert");
+        DynamicJsonDocument jsonDocument(1024);
+        DeserializationError error = deserializeJson(jsonDocument, contactsFile);
+        if (error) {
+            MYDEBUG_PRINTLN("-SPIFFS: Error parsing contacts.json");
+        } else {
+            JsonArray contactsArray = jsonDocument["list_of_contacts"].as<JsonArray>();
+            JsonObject contact = contactsArray.createNestedObject();
+            contact["id-1"] = id1;
+            contact["id-2"] = id2;
+            contact["timestamp"] = timestamp;
+            if (serializeJson(jsonDocument, contactsFile) == 0) {
+                MYDEBUG_PRINTLN("-SPIFFS: Impossible d'écrire le JSON dans le fichier contacts.json");
+            }
+            contactsFile.close();
+            MYDEBUG_PRINTLN("-SPIFFS: Fichier fermé");
+            checkContacts();
+        }
+    } else {
+        MYDEBUG_PRINTLN("-SPIFFS: Error opening contacts.json");
+    }
+}
+
+void savePositive(String id){
+    positiveListFile = SPIFFS.open(strPositiveListFile, "r");
+    if (positiveListFile) {
+        MYDEBUG_PRINTLN("-SPIFFS : Fichier ouvert");
+        DynamicJsonDocument jsonDocument(512);
+        DeserializationError error = deserializeJson(jsonDocument, positiveListFile);
+        if (error) {
+            MYDEBUG_PRINTLN("-SPIFFS: Error parsing positivelist.json");
+        } else {
+            JsonArray positiveListArray = jsonDocument["positive_list"].as<JsonArray>();
+            positiveListArray.add(id);
+            if (serializeJson(jsonDocument, positiveListFile) == 0) {
+                MYDEBUG_PRINTLN("-SPIFFS: Impossible d'écrire le JSON dans le fichier positivelist.json");
+            }
+            positiveListFile.close();
+            MYDEBUG_PRINTLN("-SPIFFS: Fichier fermé");
+        }
+    } else {
+        MYDEBUG_PRINTLN("-SPIFFS: Error opening positivelist.json");
     }
 }

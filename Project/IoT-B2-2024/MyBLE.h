@@ -36,8 +36,7 @@
 #include <string>
 
 #define SERVICE_UUID        "436f6e74-6163-7420-5472-61636b657273" // "Contact Trackers" d'ascii en hexa, ça ne sert à rien mais bon                             
-//#define DEVICE_NAME         "MaximeBui-10"                          // Nom de votre serveur BLE qui sera détecté par les autres
-#define DEVICE_NAME         "Valentin-10"                          // Nom de votre serveur BLE qui sera détecté par les autres
+#define DEVICE_NAME         "ESP32-VALENTIN"                          // Nom de votre serveur BLE qui sera détecté par les autres
 
 int scanTime = 5; //In seconds
 BLEScan* pBLEScan;
