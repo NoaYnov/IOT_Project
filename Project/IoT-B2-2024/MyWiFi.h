@@ -87,11 +87,11 @@
 
 // Variables
 // pour le mode STATION
-const char* station_ssid     = "Livebox-LAMINE";       // Nom du réseau WiFi pour accéder à internet en mode Station
-const char* station_password = "Lamine13";   // Mot de passe du réseau WiFi pour accéder à internet en mode Station
+// const char* station_ssid     = "Livebox-LAMINE";       // Nom du réseau WiFi pour accéder à internet en mode Station
+// const char* station_password = "Lamine13";   // Mot de passe du réseau WiFi pour accéder à internet en mode Station
 // pour le mode ACCESS POINT
-const char* ap_ssid     = "ESP32_Valentin";      // Nom du réseau WiFi pour accéder à mon serveur web
-const char* ap_password = "1234567890";        // Mot de passe du réseau WiFi pour accéder à mon serveur web
+// const char* ap_ssid     = "ESP32_Valentin";      // Nom du réseau WiFi pour accéder à mon serveur web
+// const char* ap_password = "1234567890";        // Mot de passe du réseau WiFi pour accéder à mon serveur web
 String sstation_ssid;
 String sstation_password;
 String aap_ssid;
@@ -118,16 +118,16 @@ void setupWiFi(){
   //WiFi.mode(WIFI_STA);
 
   // Démarrage du mode Access Point
-  WiFi.softAP(ap_ssid, ap_password);
+  WiFi.softAP(aap_ssid, aap_password);
   // J'affiche l'adresse IP de mon point d'accès
   MYDEBUG_PRINT("-WIFI : Access Point mis à disposition : ");
   MYDEBUG_PRINTLN(WiFi.softAPIP());
 
   // Démarrage du mode Station
-  WiFi.begin(station_ssid, station_password);
+  WiFi.begin(sstation_ssid, sstation_password);
   
   MYDEBUG_PRINT("-WIFI : Connexion au réseau : ");
-  MYDEBUG_PRINTLN(station_ssid);
+  MYDEBUG_PRINTLN(sstation_ssid);
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     MYDEBUG_PRINT(".");

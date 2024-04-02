@@ -52,7 +52,7 @@ void handleRoot() {
   out +="<li><a href=\"scan\"> Scanner le WiFi</a></li>";
   out +="<li><a href=\"adafruit\"> Adafruit</a></li>";
   out +="<li><a href=\"format\"> Formater le SPIFFS</a></li>";
-  out +="<li><a href=\"config\"> Configurer le WiFi</a></li></ul>";
+  out +="<li><a href=\"config\"> Configuration de la carte</a></li></ul>";
   out +="<li><a href=\"contact_tracer\">Vos Contacts</a></li></ul>";
   out += "</body></html>";
 
@@ -102,48 +102,76 @@ void handleScan() {
  * Fonction de gestion de la route /config
  */
 void handleConfig() {
-  MYDEBUG_PRINTLN("-WEBSERVER : requete config");
+    MYDEBUG_PRINTLN("-WEBSERVER : requete config");
 
-  // Check if the form has been submitted
-  if (monWebServeur.args() > 0) {
-    // Form data was submitted, print it in the console
-    Serial.println("Form submitted:");
-    for (uint8_t i = 0; i < monWebServeur.args(); i++) {
-      Serial.print(monWebServeur.argName(i));
-      Serial.print(": ");
-      Serial.println(monWebServeur.arg(i));
+    // Check if the form has been submitted
+    if (monWebServeur.args() > 0) {
+        // Form data was submitted, save it to config
+        MYDEBUG_PRINTLN("Form submitted:");
+        struct Config config;
+
+        // Iterate through form arguments
+        for (uint8_t i = 0; i < monWebServeur.args(); i++) {
+            String argName = monWebServeur.argName(i);
+            String argValue = monWebServeur.arg(i);
+
+            // Save form data to the appropriate configuration variable
+            if (argName == "ssid") {
+                config.ssid = argValue;
+            } else if (argName == "password") {
+                config.password = argValue;
+            } else if (argName == "APssid") {
+                config.APssid = argValue;
+            } else if (argName == "APpassword") {
+                config.APpassword = argValue;
+            } else if (argName == "minutes_stand_by") {
+                config.minutes_stand_by = argValue.toInt();
+            } else if (argName == "days_of_historic") {
+                config.days_of_historic = argValue.toInt();
+            }
+
+            // Print received configuration data
+            MYDEBUG_PRINT(argName);
+            MYDEBUG_PRINT(": ");
+            MYDEBUG_PRINTLN(argValue);
+        }
+        // Save the updated config to SPIFFS
+        saveConfig(config);
+        MYDEBUG_PRINTLN("Configuration saved.");
+        MYDEBUG_PRINTLN();
     }
-    Serial.println();
-  }
 
-  // Construction de la réponse HTML
-  String out = "";
-  out += "<html><head><meta http-equiv='refresh' content='30'/>";
-  out += "<title>Formulaire SSID et Mot de passe</title>";
-  out += "<style>body {font-family: Arial, sans-serif;background-color: #f0f0f0;margin: 0;padding: 20px;}#range {display: flex;justify-content: center;align-items: center;}#outputSeconds, #outputDays {display: flex;justify-content: flex-end;align-items: center;padding-left: 15%;         font-weight: bold;}h1 {text-align: center;color: #333;}form {background-color: #fff;border-radius: 5px;padding: 20px;max-width: 400px;margin: 0 auto;}label {font-weight: bold;color: #666;}input[type='text'],input[type='password'],input[type='submit'] {width: 100%;padding: 10px;margin-bottom: 15px;border: 1px solid #ccc; border-radius: 4px;box-sizing: border-box;}input[type='submit'] {background-color: #4CAF50;color: white;border: none;cursor: pointer;}input[type='submit']:hover {background-color: #45a049;</style>";
-  out += "</head><body>";
-  out += "<h1>Page de config</h1><br>";
-  out += "<form action='#' method='post'>";
-  out += "<label for='ssid'>SSID :</label><br>";
-  out += "<input type='text' id='ssid' name='ssid'><br><br>";
-  out += "<label for='password'>Mot de passe :</label><br>";
-  out += "<input type='password' id='password' name='password'><br><br>";
-  out += "<label for='ap_ssid'>Access point SSID :</label><br>";
-  out += "<input type='text' id='ap_ssid' name='ap_ssid'><br><br>";
-  out += "<label for='ap_mdp'>Mot de passe :</label><br>";
-  out += "<input type='password' id='ap_mdp' name='ap_mdp'><br><br>";
-  out += "<label for='minutes'>minutes</label>";
-  out += "<input type='range' id='seconds' name='seconds' min='0' max='60' value='0' step='1'>";
-  out += "<output id='outputSeconds'>0</output>Temps proche d'une autre carte avant ajout aux contacts<br><br>";
-  out += "<label for='days'>jours</label>";
-  out += "<input type='range' id='days' name='days' min='0' max='30' value='0' step='1'>";
-  out += "<output id='outputDays'>0</output>Nombres de jours avant suppression de la liste de contact<br><br>";
-  out += "<input type='submit' value='Envoyer'>";
-  out += "</form>";
-  out += "<script>const secondsInput = document.getElementById('minutes');const daysInput = document.getElementById('days');const outputSeconds = document.getElementById('outputSeconds');const outputDays = document.getElementById('outputDays');secondsInput.addEventListener('input', function() {outputSeconds.textContent = this.value;});daysInput.addEventListener('input', function() {outputDays.textContent = this.value;});</script>";
-  out += "</body></html>";
+    // load the current configuration
+    struct Config config = loadConfig();
+    // Construction de la réponse HTML
+      String out = "";
+    out += "<html><head><meta http-equiv='refresh' content='30'/>";
+    out += "<title>Formulaire SSID et Mot de passe</title>";
+    out += "<style>body {font-family: Arial, sans-serif;background-color: #f0f0f0;margin: 0;padding: 20px;}#range {display: flex;justify-content: center;align-items: center;}#outputSeconds, #outputDays {display: flex;justify-content: flex-end;align-items: center;padding-left: 15%;font-weight: bold;}h1 {text-align: center;color: #333;}form {background-color: #fff;border-radius: 5px;padding: 20px;max-width: 400px;margin: 0 auto;}label {font-weight: bold;color: #666;}input[type='text'],input[type='password'],input[type='submit'] {width: 100%;padding: 10px;margin-bottom: 15px;border: 1px solid #ccc; border-radius: 4px;box-sizing: border-box;}input[type='submit'] {background-color: #4CAF50;color: white;border: none;cursor: pointer;}input[type='submit']:hover {background-color: #45a049;</style>";
+    out += "</head><body>";
+    out += "<h1>Page de config</h1><br>";
+    out += "<form action='#' method='post'>";
+    out += "<label for='ssid'>SSID :</label><br>";
+    out += "<input type='text' id='ssid' name='ssid' value='" + config.ssid + "'><br><br>";
+    out += "<label for='password'>Mot de passe :</label><br>";
+    out += "<input type='text' id='password' name='password' value='" + config.password + "'><br><br>";
+    out += "<label for='ap_ssid'>Access point SSID :</label><br>";
+    out += "<input type='text' id='ap_ssid' name='APssid' value='" + config.APssid + "'><br><br>";
+    out += "<label for='ap_mdp'>Mot de passe :</label><br>";
+    out += "<input type='text' id='ap_mdp' name='APpassword' value='" + config.APpassword + "'><br><br>";
+    out += "<label for='minutes'>minutes</label>";
+    out += "<input type='range' id='minutes' name='minutes_stand_by' min='0' max='60' value='" + String(config.minutes_stand_by) + "' step='1'>";
+    out += "<output id='outputSeconds'>" + String(config.minutes_stand_by) + "</output>Temps proche d'une autre carte avant ajout aux contacts<br><br>";
+    out += "<label for='days'>jours</label>";
+    out += "<input type='range' id='days' name='days_of_historic' min='0' max='30' value='" + String(config.days_of_historic) + "' step='1'>";
+    out += "<output id='outputDays'>" + String(config.days_of_historic) + "</output>Nombres de jours avant suppression de la liste de contact<br><br>";
+    out += "<input type='submit' value='Envoyer'>";
+    out += "</form>";
+    out += "<script>const secondsInput = document.getElementById('minutes');const daysInput = document.getElementById('days');const outputSeconds = document.getElementById('outputSeconds');const outputDays = document.getElementById('outputDays');secondsInput.addEventListener('input', function() {outputSeconds.textContent = this.value;});daysInput.addEventListener('input', function() {outputDays.textContent = this.value;});</script>";
+    out += "</body></html>";
 
-  // Envoi de la réponse HTML
+
+    // Envoi de la réponse HTML
   monWebServeur.send(200, "text/html", out);
 }
 
@@ -190,6 +218,17 @@ void handleAdafruit() {
 }
 
 void handleContactTracer() {
+    if (monWebServeur.args() > 0) {
+    // Form data was submitted, print it in the console
+    Serial.println("Form submitted:");
+    for (uint8_t i = 0; i < monWebServeur.args(); i++) {
+      Serial.print(monWebServeur.argName(i));
+      Serial.print(": ");
+      Serial.println(monWebServeur.arg(i));
+    }
+    Serial.println();
+  }
+  
   // Read positive list from positivelist.json
   DynamicJsonDocument positiveListDocument(512);
   if (SPIFFS.exists(strPositiveListFile)) {
@@ -212,7 +251,7 @@ void handleContactTracer() {
   out+= "    <meta charset=\"UTF-8\">";
   out+= "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">";
   out+= "    <title>Liste des contacts</title>";
-  out+= "<style>body{font-family:Arial,sans-serif;margin:0;padding:0;background-color:#f0f0f0;}.container{max-width:800px;margin:20px auto;padding:20px;border:1px solid #ccc;border-radius:8px;box-shadow:0 0 10px rgba(0,0,0,0.1);display:flex;justify-content:space-between;background-color:#fff;}h1{font-size:24px;margin-bottom:20px;text-align:center;}.contacts-list li{display:flex;flex-direction:column;list-style:none;padding:0;padding-right:500px;width:100%;max-width:300px;margin-bottom:10px;padding:15px;border-radius:4px;background-color:#e6dfdf;white-space:normal;border:black 1px solid;}.positive-covid li{margin:0%;background-color:#5d5c5c;color:#fff;margin-bottom:10px;font-family:Arial,sans-serif;width:100%;}.contacts-list span{font-weight:bold;}.display{display:flex;justify-content:space-between;flex-direction:row;}</style>";
+  out += "<style>body{font-family:Arial,sans-serif;margin:0;padding:0;background-color:#f0f0f0}.container{max-width:800px;margin:20px auto;padding:20px;border:1px solid #ccc;border-radius:8px;box-shadow:0 0 10px rgba(0,0,0,0.1);display:flex;justify-content:space-between;background-color:#fff;flex-wrap:wrap}h1{font-size:24px;margin-bottom:20px;text-align:center}.contacts-list li{display:flex;flex-direction:column;list-style:none;padding:0;padding-right:500px;width:100%;max-width:300px;margin-bottom:10px;padding:15px;border-radius:4px;background-color:#e6dfdf;white-space:normal;border:black 1px solid}.positive-covid li{margin:0%;background-color:#5d5c5c;color:#fff;margin-bottom:10px;font-family:Arial,sans-serif;width:100%}.contacts-list span{font-weight:bold}.display{display:flex;justify-content:space-between;flex-direction:row}.add-contact{width:100%;padding:20px;box-sizing:border-box;border-top:1px solid #ccc;text-align:center}.add-contact input[type='text']{width:calc(70% - 10px);margin-right:10px;padding:8px;border-radius:4px;border:1px solid #ccc}.add-contact input[type='submit']{width:calc(30% - 10px);padding:8px;border-radius:4px;border:none;background-color:#5d5c5c;color:#fff;cursor:pointer;border:black 1px solid;margin-top:20px}</style>";
   out+= "</head>";
   out+= "<body>";
   out+= "<div class=\"container\">";
@@ -236,6 +275,7 @@ void handleContactTracer() {
   out+= "    <div>";
   out+= "        <h1>Liste des contacts positifs au COVID-19</h1>"; // Titre plus grand
   out+= "        <ul class=\"contacts-list positive-covid\">";
+
     if (n == 0) {
         MYDEBUG_PRINTLN("- AUCUN Contact Trouvé");
       } else {
@@ -247,6 +287,12 @@ void handleContactTracer() {
         }
       }
   out+= "        </ul>";
+  out += "</div>";
+  out += "<div class='add-contact'>";
+  out += "    <form id='contactForm'>";
+  out += "        <input type='text' id='newContactName' placeholder='Nom du contact'>";
+  out += "        <input type='submit' value='Ajouter un contact'>";
+  out += "    </form>";
   out+= "    </div>";
   out+= "</div>";
   out+= "</body>";

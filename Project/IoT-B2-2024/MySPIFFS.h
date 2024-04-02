@@ -153,7 +153,7 @@ void setupSPIFFS(bool bFormat = false){
                 jsonDocument["days_of_historic"] = int(30);
                 // Sérialisation du JSON dans le fichier de configuration
                 if (serializeJson(jsonDocument, configFile) == 0) {
-                    MYDEBUG_PRINTLN("-SPIFFS : Impossible d'écrire le JSON dans le fichier de configuration");
+                    MYDEBUG_PRINTLN("-SPIFFS : 2222 Impossible d'écrire le JSON dans le fichier de configuration");
                 }
                 // Fermeture du fichier
                 configFile.close();
@@ -302,26 +302,31 @@ struct Config {
 };
 
 void saveConfig(struct Config config){
-    configFile = SPIFFS.open(strConfigFile, "r");
+    // Delete the existing config file
+    SPIFFS.remove(strConfigFile);
+
+    // Open the config file in write mode
+    configFile = SPIFFS.open(strConfigFile, "w");
     if (configFile) {
-        MYDEBUG_PRINTLN("-SPIFFS : Fichier ouvert");
+        MYDEBUG_PRINTLN("-SPIFFS: Fichier ouvert en écriture");
+
+        // Create a JSON document and set the configuration values
         DynamicJsonDocument jsonDocument(512);
-        DeserializationError error = deserializeJson(jsonDocument, configFile);
-        if (error) {
-            MYDEBUG_PRINTLN("-SPIFFS: Error parsing config.json");
-        } else {
-            jsonDocument["ssid"] = config.ssid;
-            jsonDocument["password"] = config.password;
-            jsonDocument["APssid"] = config.APssid;
-            jsonDocument["APpassword"] = config.APpassword;
-            jsonDocument["minutes_stand_by"] = config.minutes_stand_by;
-            jsonDocument["days_of_historic"] = config.days_of_historic;
-            if (serializeJson(jsonDocument, configFile) == 0) {
-                MYDEBUG_PRINTLN("-SPIFFS: Impossible d'écrire le JSON dans le fichier config.json");
-            }
-            configFile.close();
-            MYDEBUG_PRINTLN("-SPIFFS: Fichier fermé");
+        jsonDocument["ssid"] = config.ssid;
+        jsonDocument["password"] = config.password;
+        jsonDocument["APssid"] = config.APssid;
+        jsonDocument["APpassword"] = config.APpassword;
+        jsonDocument["minutes_stand_by"] = config.minutes_stand_by;
+        jsonDocument["days_of_historic"] = config.days_of_historic;
+
+        // Serialize the JSON document to the config file
+        if (serializeJson(jsonDocument, configFile) == 0) {
+            MYDEBUG_PRINTLN("-SPIFFS: Impossible d'écrire le JSON dans le fichier config.json");
         }
+
+        // Close the config file
+        configFile.close();
+        MYDEBUG_PRINTLN("-SPIFFS: Fichier fermé");
     } else {
         MYDEBUG_PRINTLN("-SPIFFS: Error opening config.json");
     }
