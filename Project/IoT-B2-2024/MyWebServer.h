@@ -31,6 +31,7 @@
 // librairies nécessaires 
 #include <WebServer.h>
 
+#define DEVICE_NAME         "ESP32-VALENTIN"                          // Nom de votre serveur BLE qui sera détecté par les autres
 
 // Variables
 WebServer monWebServeur(80);           // Serveur web sur le port 80
@@ -51,9 +52,9 @@ void handleRoot() {
   out += "Depuis cette page, vous pouvez<br><ul>";
   out +="<li><a href=\"scan\"> Scanner le WiFi</a></li>";
   out +="<li><a href=\"adafruit\"> Adafruit</a></li>";
-  out +="<li><a href=\"format\"> Formater le SPIFFS</a></li>";
+  out +="<li><a href=\"format\"> Formatage de la carte</a></li>";
   out +="<li><a href=\"config\"> Configuration de la carte</a></li>";
-  out +="<li><a href=\"contact_tracer\">Vos Contacts</a></li></ul>";
+  out +="<li><a href=\"contact_tracer\">Dashboard YTC</a></li></ul>";
   out += "</body></html>";
 
   // Envoi de la réponse en HTML
@@ -218,104 +219,163 @@ void handleAdafruit() {
 }
 
 void handleContactTracer() {
+    struct Config config = loadConfig();
+    String contactName; // Variable to store the contact name
+    String contactDate; // Variable to store the contact date
+    String positiveContactName; // Variable to store the positive contact name
+
     if (monWebServeur.args() > 0) {
-    // Form data was submitted, print it in the console
-    Serial.println("Form submitted:");
-    for (uint8_t i = 0; i < monWebServeur.args(); i++) {
-      Serial.print(monWebServeur.argName(i));
-      Serial.print(": ");
-      Serial.println(monWebServeur.arg(i));
-    }
-    Serial.println();
-  }
-  
-  // Read positive list from positivelist.json
-  DynamicJsonDocument positiveListDocument(512);
-  if (SPIFFS.exists(strPositiveListFile)) {
-    positiveListFile = SPIFFS.open(strPositiveListFile, "r");
-    if (positiveListFile) {
-      DeserializationError error = deserializeJson(positiveListDocument, positiveListFile);
-      if (!error) {
-        JsonArray positiveListArray = positiveListDocument["positive_list"].as<JsonArray>();
-        String contactList[positiveListArray.size()];
-
-        MYDEBUG_PRINTLN("-WEBSERVER : requete contact tracer");
-        String out = "";
-        int n = positiveListArray.size();
-        MYDEBUG_PRINT("- Number of contacts: ");
-        MYDEBUG_PRINTLN(n);
-
-  out+= "<!DOCTYPE html>";
-  out+= "<html lang=\"fr\">";
-  out+= "<head>";
-  out+= "    <meta charset=\"UTF-8\">";
-  out+= "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">";
-  out+= "    <title>Liste des contacts</title>";
-  out += "<style>body{font-family:Arial,sans-serif;margin:0;padding:0;background-color:#f0f0f0}.container{max-width:800px;margin:20px auto;padding:20px;border:1px solid #ccc;border-radius:8px;box-shadow:0 0 10px rgba(0,0,0,0.1);display:flex;justify-content:space-between;background-color:#fff;flex-wrap:wrap}h1{font-size:24px;margin-bottom:20px;text-align:center}.contacts-list li{display:flex;flex-direction:column;list-style:none;padding:0;padding-right:500px;width:100%;max-width:300px;margin-bottom:10px;padding:15px;border-radius:4px;background-color:#e6dfdf;white-space:normal;border:black 1px solid}.positive-covid li{margin:0%;background-color:#5d5c5c;color:#fff;margin-bottom:10px;font-family:Arial,sans-serif;width:100%}.contacts-list span{font-weight:bold}.display{display:flex;justify-content:space-between;flex-direction:row}.add-contact{width:100%;padding:20px;box-sizing:border-box;border-top:1px solid #ccc;text-align:center}.add-contact input[type='text']{width:calc(70% - 10px);margin-right:10px;padding:8px;border-radius:4px;border:1px solid #ccc}.add-contact input[type='submit']{width:calc(30% - 10px);padding:8px;border-radius:4px;border:none;background-color:#5d5c5c;color:#fff;cursor:pointer;border:black 1px solid;margin-top:20px}</style>";
-  out+= "</head>";
-  out+= "<body>";
-  out+= "<div class=\"container\">";
-  out+= "    <div>";
-  out+= "        <h1>Liste des contacts</h1>"; // Titre plus grand
-  out+= "        <ul class=\"contacts-list\">";
-  out+= "            <li>";
-  out+= "                <span class=\"display\">";
-  out+= "                    <span>ESP32 NOA</span>";
-  out+= "                    <span>2024-03-25</span>";
-  out+= "                </span>";
-  out+= "            </li>";
-  out+= "            <li>";
-  out+= "                <span class=\"display\">";
-  out+= "                    <span>ESP32 VALENTIN</span>";
-  out+= "                    <span>2024-03-26</span>";
-  out+= "                </span>";
-  out+= "            </li>";
-  out+= "        </ul>";
-  out+= "    </div>";
-  out+= "    <div>";
-  out+= "        <h1>Liste des contacts positifs au COVID-19</h1>"; // Titre plus grand
-  out+= "        <ul class=\"contacts-list positive-covid\">";
-
-    if (n == 0) {
-        MYDEBUG_PRINTLN("- AUCUN Contact Trouvé");
-      } else {
-        int i = 0;
-        for (JsonVariant id : positiveListArray) {
-            contactList[i] = id.as<String>();
-            out += "<li>"+ contactList[i] +"</li>";
-            i++;
+        // Form data was submitted, print it in the console
+        Serial.println("Form submitted:");
+        for (uint8_t i = 0; i < monWebServeur.args(); i++) {
+            Serial.print(monWebServeur.argName(i));
+            Serial.print(": ");
+            Serial.println(monWebServeur.arg(i));
+            if (monWebServeur.argName(i) == "AddContact") {
+                // If the argument name is 'AddContact', store the value in contactName
+                contactName = monWebServeur.arg(i);
+            } else if (monWebServeur.argName(i) == "ContactDate") {
+                // If the argument name is 'ContactDate', store the value in contactDate
+                contactDate = monWebServeur.arg(i);
+            } else if (monWebServeur.argName(i) == "AddPositiveContact") {
+                // If the argument name is 'AddPositiveContact', store the value in positiveContactName
+                positiveContactName = monWebServeur.arg(i);
+            }
         }
-      }
-  out+= "        </ul>";
-  out += "</div>";
-  out += "<div class='add-contact'>";
-  out += "    <form id='contactForm'>";
-  out += "        <input type='text' id='newContactName' placeholder='Nom du contact'>";
-  out += "        <input type='submit' value='Ajouter un contact'>";
-  out += "    </form>";
-  out+= "    </div>";
-  out+= "</div>";
-  out+= "</body>";
-  out+= "</html>";
-  // Intégration des réseaux WiFi trouvés dans la page HTML
-
-        // Fin de la réponse HTML
-        out += "</body></html>";
-
-        // Envoi de la page HTML
-        MYDEBUG_PRINTLN("- Sending HTML response");
-        monWebServeur.send(200, "text/html", out);
-
-      } else {
-        MYDEBUG_PRINTLN("-SPIFFS: Error parsing positivelist.json");
-      }
-      positiveListFile.close();
-    } else {
-      MYDEBUG_PRINTLN("-SPIFFS: Error opening positivelist.json");
+        // Call saveContact function with the stored values after the loop
+        if (contactName != "" && contactDate != "") {
+            String myId = DEVICE_NAME;
+            saveContact(myId, contactName, contactDate);
+        }
+        if (positiveContactName != "") {
+            savePositiveContact(positiveContactName);
+        }
     }
-  } else {
-    MYDEBUG_PRINTLN("-SPIFFS: positivelist.json does not exist");
-  }
+
+    String out = "";
+    out += "<!DOCTYPE html>";
+    out += "<html lang=\"fr\">";
+    out += "<head>";
+    out += "    <meta charset=\"UTF-8\">";
+    out += "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">";
+    out += "    <title>Liste des contacts</title>";
+    out += "<style>body{font-family:Arial,sans-serif;margin:0;padding:0;background-color:#f0f0f0}.container{max-width:800px;margin:20px auto;padding:20px;border:1px solid #ccc;border-radius:8px;box-shadow:0 0 10px rgba(0,0,0,0.1);display:flex;justify-content:space-between;background-color:#fff;flex-wrap:wrap}h1{font-size:24px;margin-bottom:20px;text-align:center}.contacts-list li{display:flex;flex-direction:column;list-style:none;padding:0;padding-right:500px;width:100%;max-width:300px;margin-bottom:10px;padding:15px;border-radius:4px;background-color:#e6dfdf;white-space:normal;border:black 1px solid}.positive-covid li{margin:0%;background-color:#5d5c5c;color:#fff;margin-bottom:10px;font-family:Arial,sans-serif;width:100%}.contacts-list span{font-weight:bold}.display{display:flex;justify-content:space-between;flex-direction:row}.add-contact{width:100%;padding:20px;box-sizing:border-box;border-top:1px solid #ccc;text-align:center}.add-contact input[type='text']{width:calc(70% - 10px);margin-right:10px;padding:8px;border-radius:4px;border:1px solid #ccc}.add-contact input[type='submit']{width:calc(30% - 10px);padding:8px;border-radius:4px;border:none;background-color:#5d5c5c;color:#fff;cursor:pointer;border:black 1px solid;margin-top:20px}</style>";
+    out += "</head>";
+    out += "<body>";
+    out += "<div class=\"container\">";
+    out += "    <div>";
+    out += "        <h1>Liste des contacts</h1>"; // Titre plus grand
+    out += "        <ul class=\"contacts-list\">";
+    // Read contacts list from contacts.json
+    DynamicJsonDocument contactsDocument(512);
+    if (SPIFFS.exists(strContactsFile)) {
+        contactsFile = SPIFFS.open(strContactsFile, "r");
+        if (contactsFile) {
+            DeserializationError error = deserializeJson(contactsDocument, contactsFile);
+            if (error) {
+                MYDEBUG_PRINTLN("-SPIFFS: Error parsing contacts.json");
+            } else {
+                JsonArray contactsArray = contactsDocument["list_of_contacts"].as<JsonArray>();
+
+                MYDEBUG_PRINTLN("-WEBSERVER : requete contact tracer");
+                int i = 0;
+                for (JsonVariant contact: contactsArray) {
+                    String id1 = contact["id-1"].as<String>();
+                    String id2 = contact["id-2"].as<String>();
+                    String timestamp = contact["timestamp"].as<String>();
+                    timestamp.replace('T', ' ');
+                    out += "<li> <span class=\"display\">";
+                    if (id1 == DEVICE_NAME) {
+                        out += "<span>"+ id2 +"</span>";
+                    } else {
+                        out += "<span>"+ id1 +"</span>";
+                    }
+                    out+= "       <span> "+timestamp+" </span>";
+                    out+=  "</span> </li>";
+                    i++;
+                }
+
+                contactsFile.close();
+            }
+        } else {
+            MYDEBUG_PRINTLN("-SPIFFS: contacts.json does not exist");
+        }
+    }
+    out += "        </ul>";
+    out += "    </div>";
+    out += "    <div>";
+    out += "        <h1>Liste des contacts positifs au COVID-19</h1>"; // Titre plus grand
+    out += "        <ul class=\"contacts-list positive-covid\">";
+    // Read positive list from positivelist.json
+    DynamicJsonDocument positiveListDocument(512);
+    if (SPIFFS.exists(strPositiveListFile)) {
+        positiveListFile = SPIFFS.open(strPositiveListFile, "r");
+        if (positiveListFile) {
+            DeserializationError error = deserializeJson(positiveListDocument, positiveListFile);
+            if (error) {
+                Serial.println("Error parsing positivelist.json");
+            } else {
+                JsonArray positiveListArray = positiveListDocument["positive_list"].as<JsonArray>();
+                String contactList[positiveListArray.size()];
+
+                MYDEBUG_PRINTLN("-WEBSERVER : requete contact tracer");
+                int n = positiveListArray.size();
+                MYDEBUG_PRINT("- Number of contacts: ");
+                MYDEBUG_PRINTLN(n);
+
+                if (n == 0) {
+                    MYDEBUG_PRINTLN("- AUCUN Contact Trouvé");
+                } else {
+                    int i = 0;
+                    for (JsonVariant id: positiveListArray) {
+                        contactList[i] = id.as<String>();
+                        out += "<li>" + contactList[i] + "</li>";
+                        i++;
+                    }
+                }
+                positiveListFile.close();
+            }
+        } else {
+            MYDEBUG_PRINTLN("-SPIFFS: positivelist.json does not exist");
+        }
+    }
+    out+= "        </ul>";
+    out += "</div>";
+    out += "<div class='add-contact'>";
+    out += "    <form id='contactForm'>";
+    out += "        <input type='text' name='AddContact' id='newContactName' placeholder='Nom du contact'>";
+    // Make a hidden input that calls a JavaScript function to get the current date and time
+    out += "        <input type='hidden' name='ContactDate' id='newContactDate' value=''>";
+    out += "        <input type='submit' value='Ajouter un contact'>";
+    out += "    </form>";
+    out+= "    </div>";
+    //add a second form to add a positive contact
+    out += "<div class='add-contact'>";
+    out += "    <form id='positiveContactForm'>";
+    out += "        <input type='text' name='AddPositiveContact' id='newPositiveContactName' placeholder='Nom du contact positif'>";
+    out += "        <input type='submit' value='Ajouter un contact positif'>";
+    out += "    </form>";
+    out+= "    </div>";
+    out+= "</div>";
+    out+= "<script>";
+    out+= "    function setCurrentDateTime() {"; // Function to set the current date and time in the hidden input field
+    out+= "        var now = new Date();";
+    out+= "        var year = now.getFullYear();";
+    out+= "        var month = String(now.getMonth() + 1).padStart(2, '0');"; // Month starts from 0
+    out+= "        var day = String(now.getDate()).padStart(2, '0');";
+    out+= "        var hours = String(now.getHours()).padStart(2, '0');";
+    out+= "        var minutes = String(now.getMinutes()).padStart(2, '0');";
+    out+= "        var seconds = String(now.getSeconds()).padStart(2, '0');";
+    out+= "        var formattedDateTime = year + '-' + month + '-' + day + 'T' + hours + ':' + minutes + ':' + seconds;";
+    out+= "        console.log('Current Date and Time:', formattedDateTime);"; // Print the current date and time to the console
+    out+= "        document.getElementById('newContactDate').value = formattedDateTime;"; // Set the value of the hidden input field to the current date and time
+    out+= "    }";
+    out+= "    setCurrentDateTime();"; // Call the function when the page loads
+    out+= "</script>";
+    out+= "</body>";
+    out+= "</html>";
+    MYDEBUG_PRINTLN("- Sending HTML response");
+    monWebServeur.send(200, "text/html", out);
 }
 
 

@@ -47,12 +47,15 @@ Sketch    OTA update   File system   EEPROM  WiFi config (SDK)
 #include "SPIFFS.h"
 #include <ArduinoJson.h>   //Arduino JSON by Benoit Blanchon : https://github.com/bblanchon/ArduinoJson
 
+#define DEVICE_NAME         "ESP32-VALENTIN"
+
 String strConfigFile("/config.json");
 String strContactsFile("/contacts.json");
 String strPositiveListFile("/positivelist.json");
 String strTestFile("/spiffs_test.txt");
 String strTrackingFile("/spiffs_tracking.txt");
 File configFile, trackingFile, contactsFile, positiveListFile;
+const int MAX_CONTACTS = 50; // Maximum number of contacts
 
 void logTracking(String strTrackingText){
     trackingFile = SPIFFS.open(strTrackingFile, FILE_APPEND);
@@ -223,13 +226,13 @@ void setupSPIFFS(bool bFormat = false){
                 DynamicJsonDocument jsonDocument(1024);
                 JsonArray contactsArray = jsonDocument.createNestedArray("list_of_contacts");
                 JsonObject contact1 = contactsArray.createNestedObject();
-                contact1["id-1"] = "103";
-                contact1["id-2"] = "227";
-                contact1["timestamp"] = "2024-04-01 12:23:08";
+                contact1["id-1"] = "ESP32-VALENTIN";
+                contact1["id-2"] = "ESP32-ADRIEN";
+                contact1["timestamp"] = "2023-04-11T12:23:08";
                 JsonObject contact2 = contactsArray.createNestedObject();
-                contact2["id-1"] = "103";
-                contact2["id-2"] = "228";
-                contact2["timestamp"] = "2024-04-01 12:23:08";
+                contact2["id-1"] = "ESP32-NOA";
+                contact2["id-2"] = "ESP32-VALENTIN";
+                contact2["timestamp"] = "2024-04-11T12:17:08";
                 if (serializeJson(jsonDocument, contactsFile) == 0) {
                     MYDEBUG_PRINTLN("-SPIFFS: Impossible d'écrire le JSON dans le fichier contacts.json");
                 }
@@ -268,12 +271,9 @@ void setupSPIFFS(bool bFormat = false){
                 MYDEBUG_PRINTLN("-SPIFFS: Fichier créé");
                 DynamicJsonDocument jsonDocument(512);
                 JsonArray positiveListArray = jsonDocument.createNestedArray("positive_list");
-                positiveListArray.add("228");
-                positiveListArray.add("104");
-                positiveListArray.add("105");
-                positiveListArray.add("106");
-                positiveListArray.add("107");
-                positiveListArray.add("108");
+                positiveListArray.add("ESP32-NOA");
+                positiveListArray.add("ESP32-ADRIEN");
+                positiveListArray.add("ESP32-DIMITRI");
                 if (serializeJson(jsonDocument, positiveListFile) == 0) {
                     MYDEBUG_PRINTLN("-SPIFFS: Impossible d'écrire le JSON dans le fichier positivelist.json");
                 }
@@ -336,7 +336,6 @@ struct Config loadConfig(){
     configFile = SPIFFS.open(strConfigFile, "r");
     struct Config config;
     if (configFile) {
-        MYDEBUG_PRINTLN("-SPIFFS : Fichier ouvert");
         DynamicJsonDocument jsonDocument(512);
         DeserializationError error = deserializeJson(jsonDocument, configFile);
         if (error) {
@@ -350,128 +349,300 @@ struct Config loadConfig(){
             config.days_of_historic = jsonDocument["days_of_historic"].as<int>();
         }
         configFile.close();
-        MYDEBUG_PRINTLN("-SPIFFS: Fichier fermé");
     } else {
         MYDEBUG_PRINTLN("-SPIFFS: Error opening config.json");
     }
     return config;
 }
 
-unsigned long calculateEpochTime(String timestamp) {
-    // Split the timestamp into date and time
-    int splitT = timestamp.indexOf("T");
-    String dateStr = timestamp.substring(0, splitT);
-    String timeStr = timestamp.substring(splitT + 1);
+struct Contact {
+    String id1;
+    String id2;
+    String timestamp;
+};
 
-    // Convert date and time strings to integers
-    int year = dateStr.substring(0, 4).toInt();
-    int month = dateStr.substring(5, 7).toInt();
-    int day = dateStr.substring(8, 10).toInt();
-    int hour = timeStr.substring(0, 2).toInt();
-    int minute = timeStr.substring(3, 5).toInt();
-    int second = timeStr.substring(6, 8).toInt();
-
-    // Calculate and return epoch time
-    struct tm tm;
-    tm.tm_year = year - 1900;
-    tm.tm_mon = month - 1;
-    tm.tm_mday = day;
-    tm.tm_hour = hour;
-    tm.tm_min = minute;
-    tm.tm_sec = second;
-    time_t epochTime = mktime(&tm);
-    return static_cast<unsigned long>(epochTime);
+int calculateDifferenceInDays(String currentTime, String contactTime) {
+    struct tm tm1 = {0};
+    struct tm tm2 = {0};
+    strptime(currentTime.c_str(), "%Y-%m-%dT%H:%M:%S", &tm1);
+    strptime(contactTime.c_str(), "%Y-%m-%dT%H:%M:%S", &tm2);
+    time_t t1 = mktime(&tm1);
+    time_t t2 = mktime(&tm2);
+    return (t1 - t2) / 86400;
 }
 
-int calculateDifferenceInDays(unsigned long currentTime, unsigned long contactTime) {
-    // Calculate difference in seconds
-    unsigned long diffSeconds = currentTime - contactTime;
-    // Convert seconds to days
-    int diffDays = diffSeconds / 86400;
-    return diffDays;
-}
-
-void checkContacts(){
-    contactsFile = SPIFFS.open(strContactsFile, "r+");
-    if (contactsFile) {
-        MYDEBUG_PRINTLN("-SPIFFS : Fichier ouvert");
-        DynamicJsonDocument jsonDocument(1024);
-        DeserializationError error = deserializeJson(jsonDocument, contactsFile);
-        if (error) {
-            MYDEBUG_PRINTLN("-SPIFFS: Error parsing contacts.json");
-        } else {
-            JsonArray contactsArray = jsonDocument["list_of_contacts"].as<JsonArray>();
-            struct Config config = loadConfig();
-            int days = config.days_of_historic;
-            unsigned long currentTime = timeClient.getEpochTime();
-            for (int i = 0; i < contactsArray.size(); i++) {
-                unsigned long contactTime = calculateEpochTime(contactsArray[i]["timestamp"].as<String>());
-                MYDEBUG_PRINTLN("Contact Time: " + String(contactTime));
-                int diff = calculateDifferenceInDays(currentTime, contactTime);
-                MYDEBUG_PRINTLN("Difference in days: " + diff);
-                if (diff > days) {
-                    contactsArray.remove(i);
-                    i--; // Adjust index since we removed an element
-                } else {
-                    MYDEBUG_PRINTLN("Contact still valid");
-                }
-            }
-            contactsFile.seek(0); // Move cursor to the beginning of the file
-            if (serializeJson(jsonDocument, contactsFile) == 0) {
-                MYDEBUG_PRINTLN("-SPIFFS: Impossible d'écrire le JSON dans le fichier contacts.json");
-            }
-            contactsFile.close();
-            MYDEBUG_PRINTLN("-SPIFFS: Fichier fermé");
-        }
-    } else {
-        MYDEBUG_PRINTLN("-SPIFFS: Error opening contacts.json");
+void deletePositive(String id) {
+    // Open the file in read mode to read existing positive IDs
+    File positiveListFile = SPIFFS.open(strPositiveListFile, "r");
+    if (!positiveListFile) {
+        MYDEBUG_PRINTLN("-SPIFFS: Error opening positivelist.json for reading");
+        return;
     }
+
+    // Read the JSON data from the file
+    DynamicJsonDocument jsonDocument(1024);
+    DeserializationError error = deserializeJson(jsonDocument, positiveListFile);
+    if (error) {
+        MYDEBUG_PRINTLN("-SPIFFS: Error parsing positivelist.json");
+        positiveListFile.close();
+        return;
+    }
+
+    // Close the file after reading
+    positiveListFile.close();
+
+    // Extract positive IDs from JSON data
+    JsonArray positiveListArray = jsonDocument["positive_list"].as<JsonArray>();
+    JsonArray updatedPositiveList;
+    bool found = false;
+
+    // Iterate through positive IDs and remove the specified ID
+    for (const auto& entry : positiveListArray) {
+        String currentID = entry.as<String>();
+        if (currentID != id) {
+            updatedPositiveList.add(currentID);
+        } else {
+            found = true;
+        }
+    }
+
+    // If ID not found, no need to update the file
+    if (!found) {
+        MYDEBUG_PRINTLN("-SPIFFS: ID not found in positive list, nothing to delete");
+        return;
+    }
+
+    // Open the file in write mode to write updated positive IDs
+    positiveListFile = SPIFFS.open(strPositiveListFile, "w");
+    if (!positiveListFile) {
+        MYDEBUG_PRINTLN("-SPIFFS: Error opening positivelist.json for writing");
+        return;
+    }
+
+    // Add updated positive IDs to the JSON array
+    JsonObject jsonRoot = jsonDocument.to<JsonObject>();
+    jsonRoot["positive_list"] = updatedPositiveList;
+
+    // Serialize JSON data and write to the file
+    if (serializeJson(jsonRoot, positiveListFile) == 0) {
+        MYDEBUG_PRINTLN("-SPIFFS: Failed to write JSON to positivelist.json");
+    } else {
+        MYDEBUG_PRINTLN("-SPIFFS: ID deleted from positive list");
+    }
+
+    // Close the file after writing
+    positiveListFile.close();
 }
 
-void saveContact(String id1, String id2, String timestamp){
+
+void checkContacts(String currentTime){
+    // Array to store existing contacts
+    Contact keepContacts[MAX_CONTACTS];
+    int numKeepContacts = 0;
+
+    // Open the file in read mode to read existing contacts
     contactsFile = SPIFFS.open(strContactsFile, "r");
     if (contactsFile) {
-        MYDEBUG_PRINTLN("-SPIFFS : Fichier ouvert");
+        MYDEBUG_PRINTLN("-SPIFFS: File opened for reading");
         DynamicJsonDocument jsonDocument(1024);
         DeserializationError error = deserializeJson(jsonDocument, contactsFile);
         if (error) {
-            MYDEBUG_PRINTLN("-SPIFFS: Error parsing contacts.json");
+            MYDEBUG_PRINTLN("-SPIFFS: Error parsing contacts.json in checkContacts()");
         } else {
+            // Parse JSON data
+            MYDEBUG_PRINTLN("-SPIFFS: Parsing contacts.json");
             JsonArray contactsArray = jsonDocument["list_of_contacts"].as<JsonArray>();
-            JsonObject contact = contactsArray.createNestedObject();
-            contact["id-1"] = id1;
-            contact["id-2"] = id2;
-            contact["timestamp"] = timestamp;
-            if (serializeJson(jsonDocument, contactsFile) == 0) {
-                MYDEBUG_PRINTLN("-SPIFFS: Impossible d'écrire le JSON dans le fichier contacts.json");
+            MYDEBUG_PRINTLN("-SPIFFS: Contacts array parsed");
+            //struct Config configTemp = loadConfig();
+            int days = 30; //configTemp.days_of_historic
+
+            // Check each contact
+            for (int i = 0; i < contactsArray.size(); i++) {
+                JsonObject contact = contactsArray[i];
+                String contactTime = contact["timestamp"].as<String>();
+                MYDEBUG_PRINTLN("Contact time: " + contactTime);
+                int diff = calculateDifferenceInDays(currentTime, contactTime);
+                MYDEBUG_PRINTLN("test print");
+
+                if (diff < days) {
+                    // Contact is still valid, move to keepContacts
+                    keepContacts[numKeepContacts].id1 = contact["id-1"].as<String>();
+                    keepContacts[numKeepContacts].id2 = contact["id-2"].as<String>();
+                    keepContacts[numKeepContacts].timestamp = contact["timestamp"].as<String>();
+                    numKeepContacts++;
+                    MYDEBUG_PRINTLN("Contact valid: " + contact["id-1"].as<String>() + " - " + contact["id-2"].as<String>());
+                } else {
+                    // Contact is invalid, do not move to keepContacts
+                    MYDEBUG_PRINTLN("Contact expired: " + contact["id-1"].as<String>() + " - " + contact["id-2"].as<String>());
+                    // delete the contact in positive list
+                    /*
+                    if (contact["id-1"].as<String>() == DEVICE_NAME) {
+                        MYDEBUG_PRINTLN("Delete positive: " + contact["id-2"].as<String>());
+                        deletePositive(contact["id-2"].as<String>());
+                    } else if (contact["id-2"].as<String>() == DEVICE_NAME) {
+                        MYDEBUG_PRINTLN("Delete positive: " + contact["id-1"].as<String>());
+                        deletePositive(contact["id-1"].as<String>());
+                    }
+                     */
+                }
+                MYDEBUG_PRINTLN("Difference in days: " + String(diff));
             }
+
+            // Close the file after reading
             contactsFile.close();
-            MYDEBUG_PRINTLN("-SPIFFS: Fichier fermé");
-            checkContacts();
+            MYDEBUG_PRINTLN("-SPIFFS: File closed");
+
+            // Open the file in write mode to write updated contacts
+            contactsFile = SPIFFS.open(strContactsFile, "w");
+            if (contactsFile) {
+                MYDEBUG_PRINTLN("-SPIFFS: File opened for writing");
+                DynamicJsonDocument jsonDocument(1024);
+                JsonArray contactsArray = jsonDocument.createNestedArray("list_of_contacts");
+                // Add valid contacts from the array to the JSON array
+                for (int i = 0; i < numKeepContacts; i++) {
+                    JsonObject obj = contactsArray.createNestedObject();
+                    obj["id-1"] = keepContacts[i].id1;
+                    obj["id-2"] = keepContacts[i].id2;
+                    obj["timestamp"] = keepContacts[i].timestamp;
+                }
+                // Serialize JSON data and write to the file
+                if (serializeJson(jsonDocument, contactsFile) == 0) {
+                    MYDEBUG_PRINTLN("-SPIFFS: Failed to write JSON to contacts.json");
+                }
+                // Close the file after writing
+                contactsFile.close();
+                MYDEBUG_PRINTLN("-SPIFFS: File closed");
+            } else {
+                MYDEBUG_PRINTLN("-SPIFFS: Error opening contacts.json for writing");
+            }
         }
     } else {
-        MYDEBUG_PRINTLN("-SPIFFS: Error opening contacts.json");
+        MYDEBUG_PRINTLN("-SPIFFS: Error opening contacts.json for reading");
     }
 }
 
-void savePositive(String id){
+
+
+void saveContact(String id1, String id2, String timestamp){
+    // Array to store existing contacts
+    Contact contactsList[MAX_CONTACTS];
+    int numContacts = 0;
+
+    // Open the file in read mode to read existing contacts
+    contactsFile = SPIFFS.open(strContactsFile, "r");
+    if (contactsFile) {
+        MYDEBUG_PRINTLN("-SPIFFS: File opened");
+        DynamicJsonDocument jsonDocument(1024);
+        DeserializationError error = deserializeJson(jsonDocument, contactsFile);
+        if (error) {
+            MYDEBUG_PRINTLN("-SPIFFS: Error parsing contacts.json in saveContact()");
+        } else {
+            // Parse JSON data
+            JsonArray contactsArray = jsonDocument["list_of_contacts"].as<JsonArray>();
+            // Ensure we don't exceed the maximum contacts
+            int maxContacts = contactsArray.size() < MAX_CONTACTS ? contactsArray.size() : MAX_CONTACTS;
+            for (int i = 0; i < maxContacts; i++) {
+                JsonObject contact = contactsArray[i];
+                Contact c;
+                c.id1 = contact["id-1"].as<String>();
+                c.id2 = contact["id-2"].as<String>();
+                c.timestamp = contact["timestamp"].as<String>();
+                contactsList[numContacts++] = c;
+            }
+            // Add the new contact to the list
+            if (numContacts < MAX_CONTACTS) {
+                Contact newContact;
+                newContact.id1 = id1;
+                newContact.id2 = id2;
+                newContact.timestamp = timestamp;
+                contactsList[numContacts++] = newContact;
+            } else {
+                MYDEBUG_PRINTLN("-SPIFFS: Max contacts reached, new contact not added");
+            }
+        }
+        contactsFile.close(); // Close the file after reading
+    } else {
+        MYDEBUG_PRINTLN("-SPIFFS: Error opening contacts.json");
+        return; // Exit the function if unable to open the file
+    }
+
+    // Open the file in write mode to write updated contacts
+    contactsFile = SPIFFS.open(strContactsFile, "w");
+    if (contactsFile) {
+        MYDEBUG_PRINTLN("-SPIFFS: File opened for writing");
+        DynamicJsonDocument jsonDocument(1024);
+        JsonArray contactsArray = jsonDocument.createNestedArray("list_of_contacts");
+        // Add contacts from the array to the JSON array
+        for (int i = 0; i < numContacts; i++) {
+            JsonObject obj = contactsArray.createNestedObject();
+            obj["id-1"] = contactsList[i].id1;
+            obj["id-2"] = contactsList[i].id2;
+            obj["timestamp"] = contactsList[i].timestamp;
+        }
+        // Serialize JSON data and write to the file
+        if (serializeJson(jsonDocument, contactsFile) == 0) {
+            MYDEBUG_PRINTLN("-SPIFFS: Failed to write JSON to contacts.json");
+        }
+        contactsFile.close(); // Close the file after writing
+        MYDEBUG_PRINTLN("-SPIFFS: File closed");
+    } else {
+        MYDEBUG_PRINTLN("-SPIFFS: Error opening contacts.json for writing");
+    }
+    checkContacts(timestamp);
+}
+
+
+void savePositiveContact(String id) {
+    // Array to store existing positive IDs
+    String positiveIDs[MAX_CONTACTS];
+    int numPositiveIDs = 0;
+
+    // Open the file in read mode to read existing positive IDs
     positiveListFile = SPIFFS.open(strPositiveListFile, "r");
     if (positiveListFile) {
-        MYDEBUG_PRINTLN("-SPIFFS : Fichier ouvert");
-        DynamicJsonDocument jsonDocument(512);
+        MYDEBUG_PRINTLN("-SPIFFS: File opened");
+        DynamicJsonDocument jsonDocument(1024);
         DeserializationError error = deserializeJson(jsonDocument, positiveListFile);
         if (error) {
             MYDEBUG_PRINTLN("-SPIFFS: Error parsing positivelist.json");
         } else {
+            // Parse JSON data
             JsonArray positiveListArray = jsonDocument["positive_list"].as<JsonArray>();
-            positiveListArray.add(id);
-            if (serializeJson(jsonDocument, positiveListFile) == 0) {
-                MYDEBUG_PRINTLN("-SPIFFS: Impossible d'écrire le JSON dans le fichier positivelist.json");
+            // Ensure we don't exceed the maximum positive IDs
+            int maxPositiveIDs = positiveListArray.size() < MAX_CONTACTS ? positiveListArray.size() : MAX_CONTACTS;
+            for (int i = 0; i < maxPositiveIDs; i++) {
+                positiveIDs[numPositiveIDs++] = positiveListArray[i].as<String>();
             }
-            positiveListFile.close();
-            MYDEBUG_PRINTLN("-SPIFFS: Fichier fermé");
+            // Add the new positive ID to the list
+            if (numPositiveIDs < MAX_CONTACTS) {
+                positiveIDs[numPositiveIDs++] = id;
+            } else {
+                MYDEBUG_PRINTLN("-SPIFFS: Max positive IDs reached, new ID not added");
+            }
         }
+        positiveListFile.close(); // Close the file after reading
     } else {
         MYDEBUG_PRINTLN("-SPIFFS: Error opening positivelist.json");
+        return; // Exit the function if unable to open the file
+    }
+
+    // Open the file in write mode to write updated positive IDs
+    positiveListFile = SPIFFS.open(strPositiveListFile, "w");
+    if (positiveListFile) {
+        MYDEBUG_PRINTLN("-SPIFFS: File opened for writing");
+        DynamicJsonDocument jsonDocument(1024);
+        JsonArray positiveListArray = jsonDocument.createNestedArray("positive_list");
+        // Add positive IDs from the array to the JSON array
+        for (int i = 0; i < numPositiveIDs; i++) {
+            positiveListArray.add(positiveIDs[i]);
+        }
+        // Serialize JSON data and write to the file
+        if (serializeJson(jsonDocument, positiveListFile) == 0) {
+            MYDEBUG_PRINTLN("-SPIFFS: Failed to write JSON to positivelist.json");
+        }
+        positiveListFile.close(); // Close the file after writing
+        MYDEBUG_PRINTLN("-SPIFFS: File closed");
+    } else {
+        MYDEBUG_PRINTLN("-SPIFFS: Error opening positivelist.json for writing");
     }
 }
