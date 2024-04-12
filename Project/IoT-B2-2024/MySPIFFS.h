@@ -57,24 +57,24 @@ String strTrackingFile("/spiffs_tracking.txt");
 File configFile, trackingFile, contactsFile, positiveListFile;
 const int MAX_CONTACTS = 50; // Maximum number of contacts
 
-void logTracking(String strTrackingText){
-    trackingFile = SPIFFS.open(strTrackingFile, FILE_APPEND);
-    if (trackingFile) {
-        timeClient.update();
-        trackingFile.print(timeClient.getFormattedTime());
-        trackingFile.print("\t");
-        trackingFile.println(strTrackingText);
-        trackingFile.close();
+void logTracking(String strTrackingText){ // ---------------------- Ecriture dans le fichier de tracking
+    trackingFile = SPIFFS.open(strTrackingFile, FILE_APPEND); // ----- Ouverture du fichier en écriture
+    if (trackingFile) { 
+        timeClient.update(); // ------------------------------------ Mise à jour de l'heure
+        trackingFile.print(timeClient.getFormattedTime()); // ------- Ecriture de l'heure
+        trackingFile.print("\t"); 
+        trackingFile.println(strTrackingText); // ------------------- Ecriture du texte
+        trackingFile.close(); // ------------------------------------ Fermeture du fichier
     } else{
-        MYDEBUG_PRINTLN("-SPIFFS : Impossible d'ouvrir le fichier");
+        MYDEBUG_PRINTLN("-SPIFFS : Impossible d'ouvrir le fichier"); 
     }
 }
 
-void setupSPIFFS(bool bFormat = false){
+void setupSPIFFS(bool bFormat = false){ // -------------------------- Initialisation du système de fichier
 
-    MYDEBUG_PRINTLN("-SPIFFS : Montage du système de fichier");
+    MYDEBUG_PRINTLN("-SPIFFS : Montage du système de fichier"); 
 
-    if (SPIFFS.begin(true)) {
+    if (SPIFFS.begin(true)) { // ------------------------------------ Montage du système de fichier
         MYDEBUG_PRINTLN("-SPIFFS : MONTE");
 
         if (bFormat){
@@ -85,9 +85,9 @@ void setupSPIFFS(bool bFormat = false){
         // Fichier de test
         if (SPIFFS.exists(strTestFile)) {  // ------------------------- Le fichier existe
             File testFile = SPIFFS.open(strTestFile, "r");
-            if (testFile){
+            if (testFile){ // ---------------------------------------- Ouverture du fichier en lecture
                 MYDEBUG_PRINTLN("-SPIFFS : Lecture du fichier spiffs_test.txt");
-                while(testFile.available()){
+                while(testFile.available()){ 
                     Serial.write(testFile.read());
                 }
                 MYDEBUG_PRINTLN("");
@@ -105,22 +105,22 @@ void setupSPIFFS(bool bFormat = false){
                 DynamicJsonDocument jsonDocument(512);
                 // Désérialisation du document JSON lu
                 DeserializationError error = deserializeJson(jsonDocument, configFile);
-                if (error){
+                if (error){ 
                     MYDEBUG_PRINTLN("-SPIFFS : Impossible de parser le JSON");
-                } else {
+                } else {  
                     MYDEBUG_PRINTLN("-JSON: Fichier parsé");
-                    String parametre1 = jsonDocument["ssid"].as<String>();
+                    String parametre1 = jsonDocument["ssid"].as<String>(); // --- Récupération des paramètres
                     String parametre2 = jsonDocument["password"].as<String>();
                     String parametre3 = jsonDocument["APssid"].as<String>();
                     String parametre4 = jsonDocument["APpassword"].as<String>();
-                    int parametre5 = jsonDocument["minutes_stand_by"].as<int>();
+                    int parametre5 = jsonDocument["minutes_stand_by"].as<int>(); // --- Récupération des paramètres
                     int parametre6 = jsonDocument["days_of_historic"].as<int>();
 
-                    sstation_ssid = parametre1;
-                    sstation_password = parametre2;
+                    sstation_ssid = parametre1; // ------------------------ Affectation des paramètres
+                    sstation_password = parametre2; 
                     aap_ssid = parametre3;
-                    aap_password = parametre4;
-                    minutes_stand_by = parametre5;
+                    aap_password = parametre4; 
+                    minutes_stand_by = parametre5; 
                     days_of_historic = parametre6;
 
                     MYDEBUG_PRINT("-JSON [ssid] : ");
@@ -138,7 +138,7 @@ void setupSPIFFS(bool bFormat = false){
 
                 }
             }
-            configFile.close();
+            configFile.close(); 
             MYDEBUG_PRINTLN("-SPIFFS: Fichier fermé");
         } else {                              // ------------------- Le fichier n'existe pas
             // Initialisation du fichier de configuration avec des valeurs vides
@@ -193,10 +193,10 @@ void setupSPIFFS(bool bFormat = false){
             }
         }
 
-        if (SPIFFS.exists(strContactsFile)) {
-            MYDEBUG_PRINTLN("-SPIFFS: Lecture du fichier contacts.json");
-            contactsFile = SPIFFS.open(strContactsFile, "r");
-            if (contactsFile) {
+        if (SPIFFS.exists(strContactsFile)) { 
+            MYDEBUG_PRINTLN("-SPIFFS: Lecture du fichier contacts.json"); 
+            contactsFile = SPIFFS.open(strContactsFile, "r"); 
+            if (contactsFile) { 
                 MYDEBUG_PRINTLN("-SPIFFS: Fichier ouvert");
                 DynamicJsonDocument jsonDocument(1024);
                 DeserializationError error = deserializeJson(jsonDocument, contactsFile);
