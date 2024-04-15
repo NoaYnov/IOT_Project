@@ -32,15 +32,12 @@
 #include <BLEDevice.h>
 #include <BLEUtils.h>
 #include <BLEServer.h>
-#include <RemoteDebug.h>
-#include <string>
-
-
 
 #define SERVICE_UUID        "436f6e74-6163-7420-5472-61636b657273" // "Contact Trackers" d'ascii en hexa, ça ne sert à rien mais bon                             
-#define DEVICE_NAME         "ESP32-VALENTIN"                          // Nom de votre serveur BLE qui sera détecté par les autres
+#define DEVICE_NAME         "ESP32-NOA"                          // Nom de votre serveur BLE qui sera détecté par les autres
+//#define DEVICE_NAME         "MaximeBui-20"                          // Nom de votre serveur BLE qui sera détecté par les autres
 
-int scanTime = 10; //In seconds
+int scanTime = 2; //In seconds
 BLEScan* pBLEScan;
 
 /**
@@ -52,6 +49,7 @@ BLEScan* pBLEScan;
 void setupBLEServer() {
   MYDEBUG_PRINT("-BLE : Démarrage du serveur sous le nom : ");
   MYDEBUG_PRINTLN(DEVICE_NAME);
+
   BLEDevice::init(DEVICE_NAME);
   BLEServer *pServer = BLEDevice::createServer();
   BLEService *pService = pServer->createService(SERVICE_UUID);
@@ -103,6 +101,7 @@ void loopBLEClient() {
 
   pBLEScan->clearResults();   // delete results fromBLEScan buffer to release memory
   MYDEBUG_PRINTLN("-BLE Client : Scan terminé");
+  delay(1000);
 }
 
 /**

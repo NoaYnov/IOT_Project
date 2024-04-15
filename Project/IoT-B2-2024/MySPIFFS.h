@@ -148,10 +148,10 @@ void setupSPIFFS(bool bFormat = false){ // -------------------------- Initialisa
                 MYDEBUG_PRINTLN("-SPIFFS: Fichier créé");
                 DynamicJsonDocument jsonDocument(512);
                 // Exemple de 3 paramètres
-                jsonDocument["ssid"] = String("DefaultSSID");
-                jsonDocument["password"] = String("DefaultPassword");
+                jsonDocument["ssid"] = String("WIFI_NOA");
+                jsonDocument["password"] = String("12345678");
                 jsonDocument["APssid"] = String("ESP32_AP");
-                jsonDocument["APpassword"] = String("AP_Password");
+                jsonDocument["APpassword"] = String("12345678");
                 jsonDocument["minutes_stand_by"] = int(5);
                 jsonDocument["days_of_historic"] = int(30);
                 // Sérialisation du JSON dans le fichier de configuration
