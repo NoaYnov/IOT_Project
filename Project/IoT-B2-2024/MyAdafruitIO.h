@@ -54,14 +54,12 @@
 #define IO_USERNAME       "user123841294"
 #define IO_KEY            "aio_Myzr43AsYOGv7TjiYhUh9gZxj43E"
 // Feeds
-#define FEED_SLIDER       "/feeds/slider"
 #define FEED_ONOFF        "/feeds/onoff"
-#define FEED_TEMPERATURE  "/feeds/temperature"
-#define FEED_HUMIDITY     "/feeds/humidity"
 #define FEED_ES_MOI       "/feeds/maxime.etat-de-sante"
 #define FEED_ES_CONTACT   "/feeds/francois.etat-de-sante"
 // Frequence d'envoi des données
 #define FEED_FREQ         10
+
 
 /************************** Variables ****************************************/
 // Instanciation du client WiFi qui servira à se connecter au broker Adafruit
@@ -77,12 +75,9 @@ Ticker MyAdafruitTicker;
 // Un FEED 'time' pour récupérer l'heure
 Adafruit_MQTT_Subscribe timefeed = Adafruit_MQTT_Subscribe(&MyAdafruitMqtt, "time/seconds");
 // Un FEED 'slider' pour récupérer la valeur d'un slider présent sur le dashboard
-Adafruit_MQTT_Subscribe slider = Adafruit_MQTT_Subscribe(&MyAdafruitMqtt, IO_USERNAME FEED_SLIDER, MQTT_QOS_1);
 // Un FEED 'onoff' pour récupérer l'état d'un interrupteur présent sur le dashboard
 Adafruit_MQTT_Subscribe onoffbutton = Adafruit_MQTT_Subscribe(&MyAdafruitMqtt, IO_USERNAME FEED_ONOFF, MQTT_QOS_1);
 // Un FEED 'temperature' et 'humidity' pour publier des données de télémétrie
-Adafruit_MQTT_Publish temperatureFeed = Adafruit_MQTT_Publish(&MyAdafruitMqtt, IO_USERNAME FEED_TEMPERATURE);
-Adafruit_MQTT_Publish humidityFeed = Adafruit_MQTT_Publish(&MyAdafruitMqtt, IO_USERNAME FEED_HUMIDITY);
 Adafruit_MQTT_Subscribe subEsMaxime = Adafruit_MQTT_Subscribe(&MyAdafruitMqtt, IO_USERNAME FEED_ES_MOI, MQTT_QOS_1);
 Adafruit_MQTT_Subscribe subEsFrancois = Adafruit_MQTT_Subscribe(&MyAdafruitMqtt, IO_USERNAME FEED_ES_CONTACT, MQTT_QOS_1);
 Adafruit_MQTT_Publish pubEsMaxime = Adafruit_MQTT_Publish(&MyAdafruitMqtt, IO_USERNAME FEED_ES_MOI);
@@ -105,7 +100,7 @@ void onoffcallback(char *data, uint16_t len) {
   if (!strcmp(data, "ON")){
     MYDEBUG_PRINTLN("-AdafruitIO : J'allume");
   }
-  else { 
+  else {  
     MYDEBUG_PRINTLN("-AdafruitIO : J'éteins");
   }
 }
@@ -113,17 +108,7 @@ void onoffcallback(char *data, uint16_t len) {
 /**
  * Récupération et envoi des données de télémétrie
  */
-void getAndSendDataToAdafruit(){
-  // Récupération des données
-  float myRandomTemp = 20+(float)random(-50,50)/10;
-  float myRandomHum = 50+(float)random(-100,100)/10;
 
-  MYDEBUG_PRINTLN("-AdafruitIO TICKER : Envoi des données");
-
-  // Envoi des données au Broker
-  temperatureFeed.publish(myRandomTemp);
-  humidityFeed.publish(myRandomHum);
-}
 
 void EsMaximeCallback(char *data, uint16_t len) {
   MYDEBUG_PRINT("-AdafruitIO : Callback sur l'état de santé de Maxime : ");
@@ -171,12 +156,10 @@ void setupAdafruitIO() {
 
   // Configuration des callbacks pour les FEEDs auxquels on veut souscrire
   //timefeed.setCallback(timecallback);
-  slider.setCallback(slidercallback);
   onoffbutton.setCallback(onoffcallback);
   
   // Souscription aux FEEDs
   MyAdafruitMqtt.subscribe(&timefeed);
-  MyAdafruitMqtt.subscribe(&slider);
   MyAdafruitMqtt.subscribe(&onoffbutton);
 
   subEsMaxime.setCallback(EsMaximeCallback);
@@ -184,7 +167,6 @@ void setupAdafruitIO() {
   MyAdafruitMqtt.subscribe(&subEsMaxime);
   MyAdafruitMqtt.subscribe(&subEsFrancois);
 
-  MyAdafruitTicker.attach(FEED_FREQ, getAndSendDataToAdafruit);
 }
 
 /**
@@ -217,4 +199,5 @@ void loopAdafruitIO() {
   if(! MyAdafruitMqtt.ping()) {
     MyAdafruitMqtt.disconnect();
   }
+  
 }

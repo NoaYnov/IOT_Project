@@ -114,7 +114,7 @@ void setup() {
 void loop() {
   loopWebServer();
   loopAdafruitIO();
-  loopBLEClient();
+  // loopBLEClient();
   loopOTA();
 //  playWithLED();
 //  getDhtData();
