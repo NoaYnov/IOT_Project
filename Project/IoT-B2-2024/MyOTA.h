@@ -102,11 +102,11 @@ Ticker debugTicker;
  * Fonction appelée par un ticker pour générer des messages de debug à différents niveaux
  */
 void generateDebugLog(){
-  /*rdebugVln("-Remote DEBUG : Message VERBOSE");
+  rdebugVln("-Remote DEBUG : Message VERBOSE");
   rdebugDln("-Remote DEBUG : Message DEBUG");
   rdebugIln("-Remote DEBUG : Message INFO");
   rdebugWln("-Remote DEBUG : Message WARNING");
-  rdebugEln("-Remote DEBUG : Message ERROR");*/
+  rdebugEln("-Remote DEBUG : Message ERROR");
 }
 
 /**

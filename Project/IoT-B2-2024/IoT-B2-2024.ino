@@ -94,8 +94,8 @@ void setup() {
   setupNTP();         // Initialisation de la connexion avec le serveur NTP (heure)
 //  getNTP();           // Récupération de l'heure
   setupAdafruitIO();  // Initialisation Adafruit MQTT
-  setupBLEServer();   // Initialisation du serveur BLE pour publier un ID
-  setupBLEClient();   // Initialisation du client BLE pour scanner les ID à proximité
+  //setupBLEServer();   // Initialisation du serveur BLE pour publier un ID
+  //setupBLEClient();   // Initialisation du client BLE pour scanner les ID à proximité
   setupOTA();         // Initialisation du mode Over The Air
 //  setupLED();         // Initialisation de la LED
 //  setupDhtSensor();   // Initialisation du capteur DHT
@@ -112,8 +112,8 @@ void setup() {
 */
 void loop() {
   loopWebServer();
-  //loopAdafruitIO();
-  loopBLEClient();
+  loopAdafruitIO();
+  //loopBLEClient();
   loopOTA();
 //  playWithLED();
 //  getDhtData();

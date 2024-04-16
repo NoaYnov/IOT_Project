@@ -35,7 +35,8 @@
 
 #define SERVICE_UUID        "436f6e74-6163-7420-5472-61636b657273" // "Contact Trackers" d'ascii en hexa, ça ne sert à rien mais bon                             
 #define DEVICE_NAME         "ESP32-NOA"                          // Nom de votre serveur BLE qui sera détecté par les autres
-//#define DEVICE_NAME         "MaximeBui-20"                          // Nom de votre serveur BLE qui sera détecté par les autres
+
+
 
 int scanTime = 2; //In seconds
 BLEScan* pBLEScan;
@@ -120,7 +121,7 @@ void setupBLEClient() {
   BLEDevice::init("");
   pBLEScan = BLEDevice::getScan(); //create new scan
   pBLEScan->setAdvertisedDeviceCallbacks(new MyAdvertisedDeviceCallbacks());
-  pBLEScan->setActiveScan(true); //active scan uses more power, but get results faster
+  pBLEScan->setActiveScan(false); //active scan uses more power, but get results faster
   pBLEScan->setInterval(50);
   pBLEScan->setWindow(49);  // less or equal setInterval value
   MYDEBUG_PRINTLN("-BLE Client : Démarré");
