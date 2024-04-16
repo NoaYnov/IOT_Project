@@ -87,8 +87,8 @@
 
 // Variables
 // pour le mode STATION
-const char* station_ssid     = "WIFI_NOA";       // Nom du réseau WiFi pour accéder à internet en mode Station
-const char* station_password = "12345678";   // Mot de passe du réseau WiFi pour accéder à internet en mode Station
+//const char* station_ssid     = "WIFI_NOA";       // Nom du réseau WiFi pour accéder à internet en mode Station
+//const char* station_password = "12345678";   // Mot de passe du réseau WiFi pour accéder à internet en mode Station
 // pour le mode ACCESS POINT
 // const char* ap_ssid     = "ESP32_Valentin";      // Nom du réseau WiFi pour accéder à mon serveur web
 // const char* ap_password = "1234567890";        // Mot de passe du réseau WiFi pour accéder à mon serveur web
@@ -124,7 +124,7 @@ void setupWiFi(){
   MYDEBUG_PRINTLN(WiFi.softAPIP());
 
   // Démarrage du mode Station
-  WiFi.begin(station_ssid, station_password);
+  WiFi.begin(sstation_ssid, sstation_password);
   
   MYDEBUG_PRINT("-WIFI : Connexion au réseau : ");
   MYDEBUG_PRINTLN(sstation_ssid);

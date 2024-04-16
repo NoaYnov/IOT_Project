@@ -11,7 +11,7 @@
  * Les princales fonctions sont :
  * - begin() pour démarrer le serveur
  * - on(uri, fonction) pour appeler une fonction dédiée lorsqu'une route est sollicitée
- * - onNotFound(fonction) pour aller une fonction par défaut quand la route n'est pas connue
+ * - onNotFound(fonction) pour aller une fonction par défaut quand la route n'est pas connuef
  * - handleClient() à appeler dans la loop pour gérer la récupération et le traitemnet de nouveaux messages
  * - send(code, type de contenu, contenu) pour envoyer une réponse avec un code, et un contenu d'un type donné
  * 
