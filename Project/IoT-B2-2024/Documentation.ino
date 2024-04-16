@@ -141,7 +141,7 @@
  /**
  * \page projet Projet et évaluation 
  * 
- *  Vous avez à créer un projet de votre choix qui propose un service à l'aide des différentes fonctionnalités.<br>
+ *  Vous avez à créer un projet de votre choix qui propose un service à l'aide des différentes fonctionnalités.OULALALALALALAL<br>
  *  Chaque fonctionalité est valorisée indépendamment les unes des autres, à vous de composer en sachant que le WiFi et MQTT sont obligatoires.
  *  - WiFi - 3 points
  *  - MQTT / Adafruit - 5 points
