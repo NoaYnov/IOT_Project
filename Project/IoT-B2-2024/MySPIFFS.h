@@ -148,10 +148,10 @@ void setupSPIFFS(bool bFormat = false){ // -------------------------- Initialisa
                 MYDEBUG_PRINTLN("-SPIFFS: Fichier créé");
                 DynamicJsonDocument jsonDocument(512);
                 // Exemple de 3 paramètres
-                jsonDocument["ssid"] = String("DefaultSSID");
-                jsonDocument["password"] = String("DefaultPassword");
+                jsonDocument["ssid"] = String("WIFI_NOA");
+                jsonDocument["password"] = String("12345678");
                 jsonDocument["APssid"] = String("ESP32_AP");
-                jsonDocument["APpassword"] = String("AP_Password");
+                jsonDocument["APpassword"] = String("12345678");
                 jsonDocument["minutes_stand_by"] = int(5);
                 jsonDocument["days_of_historic"] = int(30);
                 // Sérialisation du JSON dans le fichier de configuration
@@ -527,6 +527,7 @@ void saveContact(String id1, String id2, String timestamp){
     // Array to store existing contacts
     Contact contactsList[MAX_CONTACTS];
     int numContacts = 0;
+    bool Doublon = false;
 
     // Open the file in read mode to read existing contacts
     contactsFile = SPIFFS.open(strContactsFile, "r");
@@ -543,14 +544,26 @@ void saveContact(String id1, String id2, String timestamp){
             int maxContacts = contactsArray.size() < MAX_CONTACTS ? contactsArray.size() : MAX_CONTACTS;
             for (int i = 0; i < maxContacts; i++) {
                 JsonObject contact = contactsArray[i];
+                String existingID1 = contact["id-1"].as<String>();
+                String existingID2 = contact["id-2"].as<String>();
                 Contact c;
                 c.id1 = contact["id-1"].as<String>();
                 c.id2 = contact["id-2"].as<String>();
                 c.timestamp = contact["timestamp"].as<String>();
                 contactsList[numContacts++] = c;
+                String currentID1 = c.id1;
+                String currentID2 = c.id2;
+                bool duplicateFound = false;
+                if (existingID1 == currentID1 || existingID2 == currentID1) {
+                  duplicateFound = true;
+                  MYDEBUG_PRINTLN("Duplicate found for ID1: " + currentID1);
+                  Doublon = true;
+                  break;
+                }
             }
+            
             // Add the new contact to the list
-            if (numContacts < MAX_CONTACTS) {
+            if (!Doublon && numContacts < MAX_CONTACTS) {
                 Contact newContact;
                 newContact.id1 = id1;
                 newContact.id2 = id2;
@@ -558,6 +571,7 @@ void saveContact(String id1, String id2, String timestamp){
                 contactsList[numContacts++] = newContact;
             } else {
                 MYDEBUG_PRINTLN("-SPIFFS: Max contacts reached, new contact not added");
+                Doublon = false;
             }
         }
         contactsFile.close(); // Close the file after reading
