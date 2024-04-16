@@ -112,7 +112,7 @@ void setup() {
 */
 void loop() {
   loopWebServer();
-  loopAdafruitIO();
+  //loopAdafruitIO();
   loopBLEClient();
   loopOTA();
 //  playWithLED();

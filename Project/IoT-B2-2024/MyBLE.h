@@ -69,11 +69,16 @@ void setupBLEServer() {
 */
 class MyAdvertisedDeviceCallbacks: public BLEAdvertisedDeviceCallbacks {
     void onResult(BLEAdvertisedDevice advertisedDevice) {
+      String myId = DEVICE_NAME;
       if (SERVICE_UUID == advertisedDevice.getServiceUUID().toString()) {
         MYDEBUG_PRINT("-BLE client / CONTACT TRACKER trouvé : ");
         MYDEBUG_PRINTLN(advertisedDevice.getServiceUUID().toString().c_str());
         MYDEBUG_PRINT("    -- Device Name : ");
         MYDEBUG_PRINTLN(advertisedDevice.getName().c_str());
+        if (!advertisedDevice.getName().empty())
+        {
+          saveContact(advertisedDevice.getName().c_str(), advertisedDevice.getName().c_str(), "toto");
+        }
         MYDEBUG_PRINT("    -- Device RSSI : ");
         MYDEBUG_PRINTLN(advertisedDevice.getRSSI());
         float ratio = (-69 - advertisedDevice.getRSSI()) / (10 * 2);
