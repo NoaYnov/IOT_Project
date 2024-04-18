@@ -34,8 +34,6 @@
 #include <BLEServer.h>
 
 #define SERVICE_UUID        "436f6e74-6163-7420-5472-61636b657273" // "Contact Trackers" d'ascii en hexa, ça ne sert à rien mais bon                             
-#define DEVICE_NAME         "ESP32-NOA"                          // Nom de votre serveur BLE qui sera détecté par les autres
-
 
 
 int scanTime = 2; //In seconds
@@ -100,7 +98,7 @@ void loopBLEClient() {
   timeClient.update();
   MYDEBUG_PRINTLN(timeClient.getFormattedTime());
 
-  BLEScanResults foundDevices = pBLEScan->start(scanTime, false);
+  BLEScanResults foundDevices = pBLEScan->start(scanTime, false); //crash dans cette fonction si trop d'appareils
 
   MYDEBUG_PRINT("-BLE Client : Devices trouvés ");
   MYDEBUG_PRINTLN(foundDevices.getCount());

@@ -47,15 +47,14 @@ Sketch    OTA update   File system   EEPROM  WiFi config (SDK)
 #include "SPIFFS.h"
 #include <ArduinoJson.h>   //Arduino JSON by Benoit Blanchon : https://github.com/bblanchon/ArduinoJson
 
-#define DEVICE_NAME         "ESP32-VALENTIN"
 
-String strConfigFile("/config.json");
-String strContactsFile("/contacts.json");
-String strPositiveListFile("/positivelist.json");
-String strTestFile("/spiffs_test.txt");
-String strTrackingFile("/spiffs_tracking.txt");
-File configFile, trackingFile, contactsFile, positiveListFile;
-const int MAX_CONTACTS = 50; // Maximum number of contacts
+String strConfigFile("/config.json"); // ---------------------------- Nom du fichier de configuration
+String strContactsFile("/contacts.json"); // ------------------------ Nom du fichier de contacts
+String strPositiveListFile("/positivelist.json"); // ---------------- Nom du fichier de liste des positifs
+String strTestFile("/spiffs_test.txt"); // -------------------------- Nom du fichier de test
+String strTrackingFile("/spiffs_tracking.txt"); // ------------------ Nom du fichier de tracking
+File configFile, trackingFile, contactsFile, positiveListFile; // --- Fichiers
+const int MAX_CONTACTS = 50; // ------------------------------------- Maximum number of contacts
 
 void logTracking(String strTrackingText){ // ---------------------- Ecriture dans le fichier de tracking
     trackingFile = SPIFFS.open(strTrackingFile, FILE_APPEND); // ----- Ouverture du fichier en écriture
@@ -123,7 +122,7 @@ void setupSPIFFS(bool bFormat = false){ // -------------------------- Initialisa
                     minutes_stand_by = parametre5; 
                     days_of_historic = parametre6;
 
-                    MYDEBUG_PRINT("-JSON [ssid] : ");
+                    MYDEBUG_PRINT("-JSON [ssid] : "); // ------------------ Affichage des paramètres
                     MYDEBUG_PRINTLN(sstation_ssid);
                     MYDEBUG_PRINT("-JSON [password] : ");
                     MYDEBUG_PRINTLN(sstation_password);
@@ -143,13 +142,13 @@ void setupSPIFFS(bool bFormat = false){ // -------------------------- Initialisa
         } else {                              // ------------------- Le fichier n'existe pas
             // Initialisation du fichier de configuration avec des valeurs vides
             MYDEBUG_PRINTLN("-SPIFFS: Le fichier de configuration n'existe pas");
-            File configFile = SPIFFS.open(strConfigFile, "w");
+            File configFile = SPIFFS.open(strConfigFile, "w"); // ----- Ouverture du fichier en écriture
             if (configFile) {
                 MYDEBUG_PRINTLN("-SPIFFS: Fichier créé");
                 DynamicJsonDocument jsonDocument(512);
-                // Exemple de 3 paramètres
-                jsonDocument["ssid"] = String("WIFI_NOA");
-                jsonDocument["password"] = String("12345678");
+                // Initialisation des valeurs par défaut
+                jsonDocument["ssid"] = String("DEFAULT_SSID");
+                jsonDocument["password"] = String("DEFAULT_PASSWORD");
                 jsonDocument["APssid"] = String("ESP32_AP");
                 jsonDocument["APpassword"] = String("12345678");
                 jsonDocument["minutes_stand_by"] = int(5);
@@ -225,13 +224,13 @@ void setupSPIFFS(bool bFormat = false){ // -------------------------- Initialisa
                 MYDEBUG_PRINTLN("-SPIFFS: Fichier créé");
                 DynamicJsonDocument jsonDocument(1024);
                 JsonArray contactsArray = jsonDocument.createNestedArray("list_of_contacts");
-                JsonObject contact1 = contactsArray.createNestedObject();
-                contact1["id-1"] = "ESP32-VALENTIN";
+                /*JsonObject contact1 = contactsArray.createNestedObject();
+                contact1["id-1"] = DEVICE_NAME;
                 contact1["id-2"] = "ESP32-ADRIEN";
-                contact1["timestamp"] = "2023-04-11T12:23:08";
+                contact1["timestamp"] = "2023-04-11T12:23:08";*/
                 JsonObject contact2 = contactsArray.createNestedObject();
                 contact2["id-1"] = "ESP32-NOA";
-                contact2["id-2"] = "ESP32-VALENTIN";
+                contact2["id-2"] = DEVICE_NAME;
                 contact2["timestamp"] = "2024-04-11T12:17:08";
                 if (serializeJson(jsonDocument, contactsFile) == 0) {
                     MYDEBUG_PRINTLN("-SPIFFS: Impossible d'écrire le JSON dans le fichier contacts.json");
@@ -271,8 +270,8 @@ void setupSPIFFS(bool bFormat = false){ // -------------------------- Initialisa
                 MYDEBUG_PRINTLN("-SPIFFS: Fichier créé");
                 DynamicJsonDocument jsonDocument(512);
                 JsonArray positiveListArray = jsonDocument.createNestedArray("positive_list");
-                positiveListArray.add("ESP32-NOA");
-                positiveListArray.add("ESP32-ADRIEN");
+                /*positiveListArray.add("ESP32-NOA");
+                positiveListArray.add("ESP32-ADRIEN");*/
                 positiveListArray.add("ESP32-DIMITRI");
                 if (serializeJson(jsonDocument, positiveListFile) == 0) {
                     MYDEBUG_PRINTLN("-SPIFFS: Impossible d'écrire le JSON dans le fichier positivelist.json");
@@ -553,16 +552,16 @@ void saveContact(String id1, String id2, String timestamp){
                 contactsList[numContacts++] = c;
                 String currentID1 = c.id1;
                 String currentID2 = c.id2;
-                bool duplicateFound = false;
-                if (existingID1 == currentID1 || existingID2 == currentID1) {
-                  duplicateFound = true;
-                  MYDEBUG_PRINTLN("Duplicate found for ID1: " + currentID1);
-                  Doublon = true;
-                  break;
+
+                // Check for duplicates
+                if ((existingID1 == id1 && existingID2 == id2) || (existingID1 == id2 && existingID2 == id1)) {
+                    Doublon = true;
+                    MYDEBUG_PRINTLN("Duplicate found for IDs: " + id1 + " and " + id2);
+                    break; // Exit the loop once a duplicate is found
                 }
             }
-            
-            // Add the new contact to the list
+
+            // Add the new contact to the list if no duplicate found and not reached max contacts
             if (!Doublon && numContacts < MAX_CONTACTS) {
                 Contact newContact;
                 newContact.id1 = id1;
@@ -570,8 +569,7 @@ void saveContact(String id1, String id2, String timestamp){
                 newContact.timestamp = timestamp;
                 contactsList[numContacts++] = newContact;
             } else {
-                MYDEBUG_PRINTLN("-SPIFFS: Max contacts reached, new contact not added");
-                Doublon = false;
+                MYDEBUG_PRINTLN("-SPIFFS: Max contacts reached or duplicate found, new contact not added");
             }
         }
         contactsFile.close(); // Close the file after reading
@@ -602,11 +600,12 @@ void saveContact(String id1, String id2, String timestamp){
     } else {
         MYDEBUG_PRINTLN("-SPIFFS: Error opening contacts.json for writing");
     }
-    checkContacts(timestamp);
+    //checkContacts(timestamp);
 }
 
 
 void savePositiveContact(String id) {
+    MYDEBUG_PRINTLN("Saving positive contact");
     // Array to store existing positive IDs
     String positiveIDs[MAX_CONTACTS];
     int numPositiveIDs = 0;
@@ -659,4 +658,128 @@ void savePositiveContact(String id) {
     } else {
         MYDEBUG_PRINTLN("-SPIFFS: Error opening positivelist.json for writing");
     }
+}
+
+void CheckAddPositive(String id) {
+    // Array to store existing contacts
+    Contact contactsList[MAX_CONTACTS];
+    int numContacts = 0;
+    bool idFound = false;
+
+    // Open the file in read mode to read existing contacts
+    contactsFile = SPIFFS.open(strContactsFile, "r");
+    if (contactsFile) {
+        MYDEBUG_PRINTLN("-SPIFFS: File opened");
+        DynamicJsonDocument jsonDocument(1024);
+        DeserializationError error = deserializeJson(jsonDocument, contactsFile);
+        if (error) {
+            MYDEBUG_PRINTLN("-SPIFFS: Error parsing contacts.json");
+        } else {
+            // Parse JSON data
+            JsonArray contactsArray = jsonDocument["list_of_contacts"].as<JsonArray>();
+            // Ensure we don't exceed the maximum contacts
+            int maxContacts = contactsArray.size() < MAX_CONTACTS ? contactsArray.size() : MAX_CONTACTS;
+            for (int i = 0; i < maxContacts; i++) {
+                JsonObject contact = contactsArray[i];
+                Contact c;
+                c.id1 = contact["id-1"].as<String>();
+                c.id2 = contact["id-2"].as<String>();
+                c.timestamp = contact["timestamp"].as<String>();
+                contactsList[numContacts++] = c;
+
+                // Check if the id is in the contacts list
+                if (c.id1 == id || c.id2 == id) {
+                    MYDEBUG_PRINTLN("ID trouvé dans la liste des contacts");
+                    savePositiveContact(id);
+                    idFound = true;
+                    break;
+                }
+            }
+        }
+        contactsFile.close(); // Close the file after reading
+    } else {
+        MYDEBUG_PRINTLN("-SPIFFS: Error opening contacts.json");
+        return; // Exit the function if unable to open the file
+    }
+
+    if (!idFound) {
+        MYDEBUG_PRINTLN("ID non trouvé dans la liste des contacts");
+    }
+}
+
+String getEtatSante(String id) {
+    //cette fonction vérifie la liste des positifs et des contacts et si un contact est positif, elle retourne "cas contact"
+    //sinon elle retourne "négatif"
+    // la fonction dans un premier temps etablie la liste des rencontres (on parcours contact et on recupere tt les id n'étant pas le notre)
+    // puis on parcours la liste des positifs et si on trouve un id dans la liste des rencontres on retourne "cas contact"
+    String contactsList[MAX_CONTACTS];
+    String positiveIDs[MAX_CONTACTS];
+    int numContacts = 0;
+    int numPositiveIDs = 0;
+
+
+    // Open the file in read mode to read existing contacts
+    contactsFile = SPIFFS.open(strContactsFile, "r");
+    if (contactsFile) {
+        MYDEBUG_PRINTLN("-SPIFFS: File opened");
+        DynamicJsonDocument jsonDocument(1024);
+        DeserializationError error = deserializeJson(jsonDocument, contactsFile);
+        if (error) {
+            MYDEBUG_PRINTLN("-SPIFFS: Error parsing contacts.json");
+        } else {
+            // Parse JSON data
+            JsonArray contactsArray = jsonDocument["list_of_contacts"].as<JsonArray>();
+            // Ensure we don't exceed the maximum contacts
+            int maxContacts = contactsArray.size() < MAX_CONTACTS ? contactsArray.size() : MAX_CONTACTS;
+            for (int i = 0; i < maxContacts; i++) {
+                JsonObject contact = contactsArray[i];
+                Contact c;
+                c.id1 = contact["id-1"].as<String>();
+                c.id2 = contact["id-2"].as<String>();
+                c.timestamp = contact["timestamp"].as<String>();
+
+                if (c.id1 != id) {
+                    contactsList[numContacts++] = c.id1;
+                } else if (c.id2 != id) {
+                    contactsList[numContacts++] = c.id2;
+                }
+            }
+        }
+        contactsFile.close(); // Close the file after reading
+    } else {
+        MYDEBUG_PRINTLN("-SPIFFS: Error opening contacts.json");
+        return "Internal Error"; // Exit the function if unable to open the file
+    }
+
+    // Open the file in read mode to read existing positive IDs
+    positiveListFile = SPIFFS.open(strPositiveListFile, "r");
+    if (positiveListFile) {
+        MYDEBUG_PRINTLN("-SPIFFS: File opened");
+        DynamicJsonDocument jsonDocument(1024);
+        DeserializationError error = deserializeJson(jsonDocument, positiveListFile);
+        if (error) {
+            MYDEBUG_PRINTLN("-SPIFFS: Error parsing positivelist.json");
+        } else {
+            // Parse JSON data
+            JsonArray positiveListArray = jsonDocument["positive_list"].as<JsonArray>();
+            // Ensure we don't exceed the maximum positive IDs
+            int maxPositiveIDs = positiveListArray.size() < MAX_CONTACTS ? positiveListArray.size() : MAX_CONTACTS;
+            for (int i = 0; i < maxPositiveIDs; i++) {
+                positiveIDs[numPositiveIDs++] = positiveListArray[i].as<String>();
+            }
+            // Check if the id is in the contacts list
+            for (int i = 0; i < numContacts; i++) {
+                for (int j = 0; j < numPositiveIDs; j++) {
+                    if (contactsList[i] == positiveIDs[j]) {
+                        return "cas contact";
+                    }
+                }
+            }
+        }
+        positiveListFile.close(); // Close the file after reading
+    } else {
+        MYDEBUG_PRINTLN("-SPIFFS: Error opening positivelist.json");
+        return "Internal Error"; // Exit the function if unable to open the file
+    }
+    return "négatif";
 }

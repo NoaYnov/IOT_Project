@@ -46,7 +46,7 @@
 */
 
 #define MYDEBUG         1 
-
+#define DEVICE_NAME     "ESP32-ENZO"                          // Nom de votre serveur BLE qui sera détecté par les autres
 // Variables globales, accessibles depuis tous les fichiers
 int i=0;              // pour la loop
 // double dSliderValue;  // pour le slider
@@ -58,10 +58,10 @@ int i=0;              // pour la loop
 #include "MyWiFi.h"         // WiFi
 #include "MyNTP.h"          // Network Time Protocol
 #include "MySPIFFS.h"       // Flash File System
-#include "MyWebServer.h"    // Serveur Web
-#include "MyDeepSleep.h"    // Deep Sleep
 #include "MyTicker.h"       // Tickers
 #include "MyAdafruitIO.h"   // Adafruit MQTT
+#include "MyWebServer.h"    // Serveur Web
+#include "MyDeepSleep.h"    // Deep Sleep
 #include "MyOTA.h"          // Over the air
 #include "MyBLE.h"          // BLE
 //#include "MyLED.h"          // LED
@@ -89,13 +89,13 @@ void setup() {
 
   setupSPIFFS();      // Initialisation du système de fichiers
   setupWiFi();        // Initialisation du WiFi
+  setupAdafruitIO();  // Initialisation Adafruit MQTT
   setupWebServer();   // Initialisation du Serveur Web
 //  setupTicker();      // Initialisation d'un ticker
   setupNTP();         // Initialisation de la connexion avec le serveur NTP (heure)
 //  getNTP();           // Récupération de l'heure
-  setupAdafruitIO();  // Initialisation Adafruit MQTT
-  //setupBLEServer();   // Initialisation du serveur BLE pour publier un ID
-  //setupBLEClient();   // Initialisation du client BLE pour scanner les ID à proximité
+  setupBLEServer();   // Initialisation du serveur BLE pour publier un ID
+  setupBLEClient();   // Initialisation du client BLE pour scanner les ID à proximité
   setupOTA();         // Initialisation du mode Over The Air
 //  setupLED();         // Initialisation de la LED
 //  setupDhtSensor();   // Initialisation du capteur DHT
@@ -113,7 +113,7 @@ void setup() {
 void loop() {
   loopWebServer();
   loopAdafruitIO();
-  //loopBLEClient();
+  //loopBLEClient(); // A ACTIVER DANS ENVIRONNEMENT VIDE : CRASH INCONNU SI TROP D'APPAREILS
   loopOTA();
 //  playWithLED();
 //  getDhtData();

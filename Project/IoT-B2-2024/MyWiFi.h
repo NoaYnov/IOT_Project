@@ -87,10 +87,10 @@
 
 // Variables
 // pour le mode STATION
-//const char* station_ssid     = "WIFI_NOA";       // Nom du réseau WiFi pour accéder à internet en mode Station
-//const char* station_password = "12345678";   // Mot de passe du réseau WiFi pour accéder à internet en mode Station
+//const char* station_ssid     = "DEFAULT_WIFI";       // Nom du réseau WiFi pour accéder à internet en mode Station
+//const char* station_password = "DEFAULT_PASSWORD";   // Mot de passe du réseau WiFi pour accéder à internet en mode Station
 // pour le mode ACCESS POINT
-// const char* ap_ssid     = "ESP32_Valentin";      // Nom du réseau WiFi pour accéder à mon serveur web
+// const char* ap_ssid     = DEVICE_NAME;      // Nom du réseau WiFi pour accéder à mon serveur web
 // const char* ap_password = "1234567890";        // Mot de passe du réseau WiFi pour accéder à mon serveur web
 String sstation_ssid;
 String sstation_password;

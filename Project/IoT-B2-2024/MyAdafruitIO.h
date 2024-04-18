@@ -51,12 +51,14 @@
 // Connexion Adafruit
 #define IO_SERVER         "io.adafruit.com"
 #define IO_SERVERPORT     1883
-#define IO_USERNAME       "user123841294"
-#define IO_KEY            "aio_Myzr43AsYOGv7TjiYhUh9gZxj43E"
+#define IO_USERNAME       "user21324"
+#define IO_KEY            "aio_NYVq84K86xKebjnA5W486qwGHGoy"
 // Feeds
 #define FEED_ONOFF        "/feeds/onoff"
-#define FEED_ES_MOI       "/feeds/maxime.etat-de-sante"
-#define FEED_ES_CONTACT   "/feeds/francois.etat-de-sante"
+//#define FEED_ES_MOI       "/feeds/maxime.etat-de-sante"
+//#define FEED_ES_CONTACT   "/feeds/francois.etat-de-sante"
+#define FEED_POSITIVE_LIST "/feeds/data.positivelist"
+#define FEED_CONTACT_LIST "/feeds/data.contactlist"
 // Frequence d'envoi des données
 #define FEED_FREQ         10
 
@@ -78,9 +80,15 @@ Adafruit_MQTT_Subscribe timefeed = Adafruit_MQTT_Subscribe(&MyAdafruitMqtt, "tim
 // Un FEED 'onoff' pour récupérer l'état d'un interrupteur présent sur le dashboard
 Adafruit_MQTT_Subscribe onoffbutton = Adafruit_MQTT_Subscribe(&MyAdafruitMqtt, IO_USERNAME FEED_ONOFF, MQTT_QOS_1);
 // Un FEED 'temperature' et 'humidity' pour publier des données de télémétrie
-Adafruit_MQTT_Subscribe subEsMaxime = Adafruit_MQTT_Subscribe(&MyAdafruitMqtt, IO_USERNAME FEED_ES_MOI, MQTT_QOS_1);
-Adafruit_MQTT_Subscribe subEsFrancois = Adafruit_MQTT_Subscribe(&MyAdafruitMqtt, IO_USERNAME FEED_ES_CONTACT, MQTT_QOS_1);
-Adafruit_MQTT_Publish pubEsMaxime = Adafruit_MQTT_Publish(&MyAdafruitMqtt, IO_USERNAME FEED_ES_MOI);
+//Adafruit_MQTT_Subscribe subEsMaxime = Adafruit_MQTT_Subscribe(&MyAdafruitMqtt, IO_USERNAME FEED_ES_MOI, MQTT_QOS_1);
+//Adafruit_MQTT_Subscribe subEsFrancois = Adafruit_MQTT_Subscribe(&MyAdafruitMqtt, IO_USERNAME FEED_ES_CONTACT, MQTT_QOS_1);
+//Adafruit_MQTT_Publish pubEsMaxime = Adafruit_MQTT_Publish(&MyAdafruitMqtt, IO_USERNAME FEED_ES_MOI);
+// Un FEED 'positive list' pour récupérer la liste des personnes testées positives
+Adafruit_MQTT_Subscribe positiveListFeed = Adafruit_MQTT_Subscribe(&MyAdafruitMqtt, IO_USERNAME FEED_POSITIVE_LIST, MQTT_QOS_1);
+Adafruit_MQTT_Publish pubPositiveList = Adafruit_MQTT_Publish(&MyAdafruitMqtt, IO_USERNAME FEED_POSITIVE_LIST);
+// Un FEED 'contact list' pour récupérer la liste des contacts
+Adafruit_MQTT_Subscribe contactListFeed = Adafruit_MQTT_Subscribe(&MyAdafruitMqtt, IO_USERNAME FEED_CONTACT_LIST, MQTT_QOS_1);
+Adafruit_MQTT_Publish pubContactList = Adafruit_MQTT_Publish(&MyAdafruitMqtt, IO_USERNAME FEED_CONTACT_LIST);
 /*************************** Sketch Code ************************************/
 
 /**
@@ -90,6 +98,8 @@ void slidercallback(double uiSliderValue) {
   MYDEBUG_PRINT("-AdafruitIO : Callback du feed slider avec la valeur ");
   MYDEBUG_PRINTLN(uiSliderValue);
 }
+
+
 
 /**
  * Callback associée à l'interrupteur sur le dashboard
@@ -109,7 +119,37 @@ void onoffcallback(char *data, uint16_t len) {
  * Récupération et envoi des données de télémétrie
  */
 
+/**
+ * Callback associée au feed de la liste des personnes testées positives
+ */
+void positiveListCallback(char *data, uint16_t len) {
+    MYDEBUG_PRINT("-AdafruitIO : Callback du feed de la liste des personnes testées positives avec la valeur : ");
+    MYDEBUG_PRINTLN(data);
+    MYDEBUG_PRINTLN("-AdafruitIO : Test ajout à ma BDD locale");
+    CheckAddPositive(data);
+}
 
+/**
+ * Callback associée au feed de la liste des contacts
+ */
+void contactListCallback(char *data, uint16_t len) {
+    MYDEBUG_PRINT("-AdafruitIO : Callback du feed de la liste des contacts avec la valeur : ");
+    MYDEBUG_PRINTLN(data);
+}
+
+
+void pubEtatSante(String etat, String nom) {
+  if (etat == "Positif") {
+    MYDEBUG_PRINTLN("-AdafruitIO : Publication de mon état de santé : Positif");
+    char data_publish[nom.length() + 1];
+    nom.toCharArray(data_publish, nom.length() + 1);
+    pubPositiveList.publish(data_publish);
+    MYDEBUG_PRINTLN("-AdafruitIO : Etat de santé publié");
+  }
+}
+
+
+/*
 void EsMaximeCallback(char *data, uint16_t len) {
   MYDEBUG_PRINT("-AdafruitIO : Callback sur l'état de santé de Maxime : ");
   MYDEBUG_PRINTLN(data);
@@ -142,6 +182,7 @@ void EsFrancoisCallback(char *data, uint16_t len) {
     logTracking("MQTT \t Mon contact est en pleine forme");
   }
 }
+*/
 
 
 /**
@@ -157,16 +198,19 @@ void setupAdafruitIO() {
   // Configuration des callbacks pour les FEEDs auxquels on veut souscrire
   //timefeed.setCallback(timecallback);
   onoffbutton.setCallback(onoffcallback);
+  positiveListFeed.setCallback(positiveListCallback);
+  contactListFeed.setCallback(contactListCallback);
   
   // Souscription aux FEEDs
   MyAdafruitMqtt.subscribe(&timefeed);
   MyAdafruitMqtt.subscribe(&onoffbutton);
+  MyAdafruitMqtt.subscribe(&positiveListFeed);
+  MyAdafruitMqtt.subscribe(&contactListFeed);
 
-  subEsMaxime.setCallback(EsMaximeCallback);
+  /*subEsMaxime.setCallback(EsMaximeCallback);
   subEsFrancois.setCallback(EsFrancoisCallback);
   MyAdafruitMqtt.subscribe(&subEsMaxime);
-  MyAdafruitMqtt.subscribe(&subEsFrancois);
-
+  MyAdafruitMqtt.subscribe(&subEsFrancois);*/
 }
 
 /**

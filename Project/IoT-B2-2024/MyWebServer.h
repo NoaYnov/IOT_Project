@@ -31,7 +31,7 @@
 // librairies nécessaires 
 #include <WebServer.h>
 
-#define DEVICE_NAME         "ESP32-VALENTIN"                          // Nom de votre serveur BLE qui sera détecté par les autres
+
 
 // Variables
 WebServer monWebServeur(80);           // Serveur web sur le port 80
@@ -223,6 +223,7 @@ void handleContactTracer() {
     String contactName; // Variable to store the contact name
     String contactDate; // Variable to store the contact date
     String positiveContactName; // Variable to store the positive contact name
+    String etat = getEtatSante(DEVICE_NAME); // Variable to store the health state of the device
 
     if (monWebServeur.args() > 0) {
         // Form data was submitted, print it in the console
@@ -240,15 +241,26 @@ void handleContactTracer() {
             } else if (monWebServeur.argName(i) == "AddPositiveContact") {
                 // If the argument name is 'AddPositiveContact', store the value in positiveContactName
                 positiveContactName = monWebServeur.arg(i);
+            } else if (monWebServeur.argName(i) == "DeclarePositive" && etat != "Positif") {
+                // If the argument name is 'DeclarePositive', set the state to positive
+                etat = "Positif";
             }
         }
         // Call saveContact function with the stored values after the loop
         if (contactName != "" && contactDate != "") {
             String myId = DEVICE_NAME;
+            MYDEBUG_PRINT("WEBSERVER : Ajout de : ");
+            MYDEBUG_PRINTLN(contactName);
+            MYDEBUG_PRINTLN(contactDate);
             saveContact(myId, contactName, contactDate);
         }
         if (positiveContactName != "") {
             savePositiveContact(positiveContactName);
+        }
+        if (etat != "") {
+            if (etat == "Positif") {
+              pubEtatSante(etat, DEVICE_NAME);
+            }
         }
     }
 
@@ -356,6 +368,14 @@ void handleContactTracer() {
     out += "        <input type='submit' value='Ajouter un contact positif'>";
     out += "    </form>";
     out+= "    </div>";
+    //add a button to declare yourself positive. and put aside your current state (positive, contact, negative)
+    out+= "<div class='add-contact'>";
+    out+= "    <form id='positiveContactForm'>";
+    out+= "        <input type='submit' name='DeclarePositive' value='Déclarer positif'>";
+    out+= "    </form>";
+    out+= "    </div>";
+    out+= "<div class='add-contact'>";
+    out+= "   <h3>Vous êtes actuellement : "+etat+"</h3>";
     out+= "</div>";
     out+= "<script>";
     out+= "    function setCurrentDateTime() {"; // Function to set the current date and time in the hidden input field
