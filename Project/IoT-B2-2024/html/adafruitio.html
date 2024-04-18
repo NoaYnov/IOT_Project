@@ -1,0 +1,145 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="fr">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=11"/>
+<meta name="generator" content="Doxygen 1.10.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>My Project: Adafruit IO</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="clipboard.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr id="projectrow">
+  <td id="projectalign">
+   <div id="projectname">My Project
+   </div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Généré par Doxygen 1.10.0 -->
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+/* @license-end */
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function() {
+  initMenu('',true,false,'search.php','Recherche');
+  $(function() { init_search(); });
+});
+/* @license-end */
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function(){initNavTree('adafruitio.html',''); initResizable(); });
+/* @license-end */
+</script>
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Chargement...</div>
+<div class="SRStatus" id="Searching">Recherche...</div>
+<div class="SRStatus" id="NoMatches">Aucune correspondance</div>
+</div>
+</div>
+</div>
+</div>
+
+<div><div class="header">
+  <div class="headertitle"><div class="title">Adafruit IO</div></div>
+</div><!--header-->
+<div class="contents">
+<div class="textblock"><p>Adafruit IO Platform.</p>
+<h2>Adafruit IO</h2>
+<p>Nous allons utiliser la plateforme Adafruit IO en guise de première approche de MQTT. Pour ce faire, installez la bibliothèque "Adafruit IO Arduino" ainsi que toutes ses dépendances.</p><ul>
+<li>Rendez vous sur la plateforme : <a href="https://io.adafruit.com/">https://io.adafruit.com/</a></li>
+<li>Enregistrez vous : <a href="https://accounts.adafruit.com/users/sign_up">https://accounts.adafruit.com/users/sign_up</a></li>
+<li>Une fois connecté, récupérez votre Aadafruit Key en cliquant sur "My Key"</li>
+<li>Copier vos identifiants pour Arduino (IO_USERNAME et IO_KEY) et coller dans la section configuration ci-dessous</li>
+<li><p class="startli">Dans la page des Feeds (topics MQTT), créer les Feeds suivants, sans les rattacher à un groupe :</p><ul>
+<li>slider</li>
+<li>onoff</li>
+<li>temperature</li>
+<li>humidity</li>
+</ul>
+<p class="startli">Adafruit a défini la notion de Feeds qui est utilisé indifféremment pour des attributs et des données de télémétrie MQTT.</p>
+</li>
+<li>Dans la page des Dashboards, créer un dashboard et éditer le. Dans celui-ci, ajouter les "blocks" suivants:<ul>
+<li>Un Slider associé au feed slider</li>
+<li>Un Toggle associé au feed onoff, en laissant les valeurs par défaut ("ON" et "OFF")</li>
+<li>Un Indicator associé au feed onoff, en indiquant la condition "=ON"</li>
+<li>un Line Chart associé aux feeds temperature et humidity</li>
+</ul>
+</li>
+<li>Tester le code en le téléversant</li>
+<li>Installer l'application IFTTT sur votre téléphone mobile<ul>
+<li>Tester différentes actions possibles avec Adafruit IO<ul>
+<li>If this : Buton widget / Button press</li>
+<li>Then that : Adafruit / Send data to Adafruit IO. Sélectionner votre feed et renseigner la valeur que vous voulez transmettre (ON par exemple) A noter que vous pouvez ajouter des "ingrédients" qui sont d'autres données qui sont à votre disposition (du téléphone ou depuis le service appelé en "If this".</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>Documentation sur l'API MQTT : <a href="https://learn.adafruit.com/adafruit-io/mqtt-api">https://learn.adafruit.com/adafruit-io/mqtt-api</a> Voici un exemple de clients qui utilisent l'API MQTT : <a href="https://learn.adafruit.com/desktop-mqtt-client-for-adafruit-io/overview">https://learn.adafruit.com/desktop-mqtt-client-for-adafruit-io/overview</a> Vous pouvez aussi utiliser la REST API pour intéragir avec la plateforme Adafruit IO.</p>
+<h2>Bibliothèque à installer</h2>
+<p>Pour utiliser l'API MQTT d'Adafruit, installer :</p><ul>
+<li>Adafruit MQTT library by Adafruit : <a href="https://github.com/adafruit/Adafruit_MQTT_Library">https://github.com/adafruit/Adafruit_MQTT_Library</a></li>
+</ul>
+<p>Fichier <a class="el" href="_my_adafruit_i_o_8h.html">MyAdafruitIO.h</a> </p>
+</div></div><!-- contents -->
+</div><!-- PageDoc -->
+</div><!-- doc-content -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="footer">Généré par <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.10.0 </li>
+  </ul>
+</div>
+</body>
+</html>

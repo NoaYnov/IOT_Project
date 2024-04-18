@@ -1,0 +1,158 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="fr">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=11"/>
+<meta name="generator" content="Doxygen 1.10.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>My Project: MQTT</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="clipboard.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr id="projectrow">
+  <td id="projectalign">
+   <div id="projectname">My Project
+   </div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Généré par Doxygen 1.10.0 -->
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+/* @license-end */
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function() {
+  initMenu('',true,false,'search.php','Recherche');
+  $(function() { init_search(); });
+});
+/* @license-end */
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function(){initNavTree('mqtt.html',''); initResizable(); });
+/* @license-end */
+</script>
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Chargement...</div>
+<div class="SRStatus" id="Searching">Recherche...</div>
+<div class="SRStatus" id="NoMatches">Aucune correspondance</div>
+</div>
+</div>
+</div>
+</div>
+
+<div><div class="header">
+  <div class="headertitle"><div class="title">MQTT</div></div>
+</div><!--header-->
+<div class="contents">
+<div class="textblock"><p>Le protocole Message Queue Telemetry Transport (MQTT) est conçu pour l'échange de messages entre des petits périphériques sur une faible bande passante, ou pour les connexions coûteuses et envoyer des messages de façon fiable. Il utilise TCP/IP. <a href="http://mqtt.org/">http://mqtt.org/</a> MQTT est un protocole ouvert, simple, léger et facile à mettre en œuvre. Ce protocole est idéal pour répondre aux besoins suivants :</p><ul>
+<li>Utilisation d’une très faible bande passante,</li>
+<li>Utilisation sur les réseaux sans fils,</li>
+<li>Faible consommation en énergie,</li>
+<li>Rapidité avec un temps de réponse supérieur aux autres standards du web actuel,</li>
+<li>Fiabilité,</li>
+<li>Utilisation de faibles ressources processeurs et de mémoire.</li>
+</ul>
+<h2>Publish/Subscribe</h2>
+<p>MQTT est un service de publication/abonnement en contraste avec le protocole HTTP et son architecture « request/response ». MQTT se base sur TCP/IP et est extrêmement léger. Il fonctionne sur le principe client/serveur.</p>
+<h2>MQTT Broker</h2>
+<p>Le point central de la communication est le broker MQTT en charge de relayer les messages des émetteurs vers les clients. Chaque client s’abonne via un message vers le broker : le « topic » (sorte d’information de routage pour le broker) qui permettra au broker de réémettre les messages reçus des producteurs de données vers les clients. Les clients et les producteurs n’ont ainsi pas à se connaître, ne communiquant qu’au travers des topics. Cette architecture permet des solutions multi-échelles.</p>
+<p>Le principe d’échange est très proche de celui de Twitter. Les messages sont envoyés par les publishers sur un canal appelé topic. Ces messages peuvent être lus par les subscribers (abonnés). Les topics (ou canaux d’informations) peuvent avoir une hiérarchie qui permet de sélectionner finement les informations que l’on désire.</p>
+<p>Chaque client MQTT a une connexion ouverte en permanence avec le broker. Si la connexion s’arrête, le broker bufférise les messages et les émet dès que la reconnexion avec le client est effectuée.</p>
+<p>Voici quelques brokers :</p><ul>
+<li>Eclipse Mosquitto</li>
+<li>CloudMQTT</li>
+<li>Thingsboard</li>
+<li>ThingMQ <br  />
+</li>
+<li>ThingStudio</li>
+<li>CloudMQTT</li>
+<li>IBM Bluemix</li>
+<li>Heroku</li>
+<li>Hivemq</li>
+<li>Microsoft Azure IoT</li>
+<li>MaQiaTTo</li>
+<li>AWS IoT Core</li>
+</ul>
+<h2>Topics</h2>
+<p>Un « topic MQTT » est une chaîne de caractères qui peut posséder une hiérarchie de niveaux séparés par le caractère « / ». Par exemple, une information de température du salon pourrait être envoyée sur le topic « maison/salon/temperature » et la température de la cuisine sur « maison/cuisine/temperature ». Le signe « + » est un caractère « wildcard » qui permet des valeurs arbitraires pour une hiérarchie particulière et le signe « # » pour plus d’un niveau.</p>
+<p>Par exemple le "topic" ‘/home/salon/temperature’ communiquera les températures du salon si un quelqu'un (object connecté ou application cliente) s’y abonne. La sonde de température présente dans le salon publiera régulièrement la température relevée sur ce topic. Si un publisher s’abonne au topic ‘/home/salon/#’ il recevra toutes les données du salon (on peut imaginer : luminosité, humidité, température ...). S’il s’abonne au topic ‘/home/#’, il collectera toutes les données des sondes de la maison.</p>
+<h2>Sécurité</h2>
+<p>MQTT permet de sécuriser les échanges à plusieurs niveaux :</p><ul>
+<li>Transport en SSL/TLS,</li>
+<li>Authentification par certificats SSL/TLS,</li>
+<li>Authentification par login/mot de passe.</li>
+</ul>
+<h2>Qualité de Service (QoS)</h2>
+<p>MQTT intègre en natif la notion de QoS. En effet le publisher à la possibilité de définir la qualité de son message. Trois niveaux sont possibles :</p><ul>
+<li>Un message de QoS niveau 0 « At most once » sera délivré tout au plus une fois. Ce qui signifie que le message est envoyé sans garantie de réception, (le broker n’informe pas l’expéditeur qu’il l’a reçu et le message)</li>
+<li>Un message de QoS niveau 1 « At least once » sera livré au moins une fois. Le client transmettra plusieurs fois s’il le faut jusqu’à ce que le Broker lui confirme qu’il a était transmis sur le réseau.</li>
+<li>Un message de QoS niveau 2 « exactly once » sera obligatoirement sauvegardé par l’émetteur et le transmettra toujours tant que le récepteur ne confirme pas son envoi sur le réseau. La principale différence étant que l’émetteur utilise une phase de reconnaissance plus sophistiquée avec le broker pour éviter une duplication des messages (plus lent mais plus sûr).</li>
+</ul>
+<h2>Bibliothèques MQTT</h2>
+<p>Il existe de très nombreuses bibliothèques pour programmer des clients MQTT, et ce pour la plupart des langages (C, C++, Java, JavaScript, PHP, Python ...) et sur la plupart des plates-formes (GNU/Linux, Windows, iOS, Android, Arduino ...).</p><ul>
+<li>Eclipse Paho : <a href="https://www.eclipse.org/paho/">https://www.eclipse.org/paho/</a></li>
+<li>HiveMQ</li>
+<li>Eclipse Mosquitto</li>
+</ul>
+<dl class="section note"><dt>Note</dt><dd>Même si on ne sait pas exactement comment, il semblerait que Facebook utilise des aspects de MQTT dans Facebook Messenger ! </dd></dl>
+</div></div><!-- contents -->
+</div><!-- PageDoc -->
+</div><!-- doc-content -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="footer">Généré par <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.10.0 </li>
+  </ul>
+</div>
+</body>
+</html>
