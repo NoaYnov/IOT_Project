@@ -69,9 +69,9 @@
 // Instanciation du client WiFi qui servira à se connecter au broker Adafruit
 WiFiClient client;
 // Instanciation du client Adafruit avec les informations de connexion
-//Carte 1
+//Carte 1 - A changer en fonction de la carte
 //Adafruit_MQTT_Client MyAdafruitMqtt(&client, IO_SERVER, IO_SERVERPORT, IO_USERNAME, IO_USERNAME, IO_KEY);
-//Carte 2
+//Carte 2 - A changer en fonction de la carte
 Adafruit_MQTT_Client MyAdafruitMqtt(&client, IO_SERVER, IO_SERVERPORT, IO_USERNAME2, IO_USERNAME2, IO_KEY2);
 // Variable de stockage de la valeur du slider
 uint32_t uiSliderValue=0;

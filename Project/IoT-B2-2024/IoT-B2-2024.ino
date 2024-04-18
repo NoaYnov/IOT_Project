@@ -46,9 +46,9 @@
 */
 
 #define MYDEBUG         1 
-//Carte 1
+//Carte 1 - A changer pour chaque carte
 //#define DEVICE_NAME    "ESP32-VALENTIN"                    // Nom de votre serveur BLE qui sera détecté par les autres
-//Carte 2
+//Carte 2 - A changer pour chaque carte
 #define DEVICE_NAME    "ESP32-ENZO"                         // Nom de votre serveur BLE qui sera détecté par les autres
 //Penser à également changer le compte adafruit dans MyAdafruitIO
                   

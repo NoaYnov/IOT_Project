@@ -295,8 +295,11 @@ void setupSPIFFS(bool bFormat = false){ // -------------------------- Initialisa
     }
 }
 
-//create a config object
 
+/* Objet de configuration
+ * Utilisé afin de stocker les paramètres de configuration dans un objet
+ * et de les charger nimporte où dans le programme
+ */
 struct Config {
     String ssid;
     String password;
@@ -306,6 +309,7 @@ struct Config {
     int days_of_historic;
 };
 
+// La fonction saveConfig() permet de sauvegarder les paramètres de configuration dans le fichier config.json
 void saveConfig(struct Config config){
     // Delete the existing config file
     SPIFFS.remove(strConfigFile);
@@ -361,13 +365,16 @@ struct Config loadConfig(){
     return config;
 }
 
-
+/* La structure Contact est utilisée pour stocker les informations de contact
+ * entre deux appareils. Elle est utilisée pour stocker les contacts dans le fichier contacts.json
+ */
 struct Contact {
     String id1;
     String id2;
     String timestamp;
 };
 
+// La fonction calculateDifferenceInDays() permet de calculer la différence en jours entre deux horodatages
 int calculateDifferenceInDays(String currentTime, String contactTime) {
     struct tm tm1 = {0};
     struct tm tm2 = {0};
@@ -443,7 +450,10 @@ void deletePositive(String id) {
 }
 
 
-// Fonction pour vérifier les contacts
+/* Fonction checkContacts()
+ * Cette fonction est appellé après avoir ajouté un contact et vérifie la BDD pour chercher
+ * d'éventuels doublons ou contacts expirés et les supprime.
+ */
 void checkContacts(String currentTime){
     // Array to store existing contacts
     Contact keepContacts[MAX_CONTACTS];
@@ -531,7 +541,7 @@ void checkContacts(String currentTime){
 }
 
 
-// Fonction pour sauvegarder un contact
+// Fonction pour sauvegarder un contact dans le fichier contacts.json
 void saveContact(String id1, String id2, String timestamp){
     // Array to store existing contacts
     Contact contactsList[MAX_CONTACTS];
@@ -613,7 +623,7 @@ void saveContact(String id1, String id2, String timestamp){
     //checkContacts(timestamp);
 }
 
-// Fonction pour sauvegarder un contact
+// Fonction pour sauvegarder un contact positif dans le fichier positivelist.json
 void savePositiveContact(String id) {
     MYDEBUG_PRINTLN("Saving positive contact");
     // Array to store existing positive IDs
@@ -670,7 +680,7 @@ void savePositiveContact(String id) {
     }
 }
 
-// Fonction pour vérifier si un ID est positif
+// Fonction pour vérifier si un ID positif est dans la BDD contact et ajoute le contact positif
 void CheckAddPositive(String id) {
     // Array to store existing contacts
     Contact contactsList[MAX_CONTACTS];
