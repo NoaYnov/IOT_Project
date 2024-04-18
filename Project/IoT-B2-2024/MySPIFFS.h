@@ -56,7 +56,7 @@ String strTrackingFile("/spiffs_tracking.txt"); // ------------------ Nom du fic
 File configFile, trackingFile, contactsFile, positiveListFile; // --- Fichiers
 const int MAX_CONTACTS = 50; // ------------------------------------- Maximum number of contacts
 
-
+// Variables de configuration
 void logTracking(String strTrackingText){ // ---------------------- Ecriture dans le fichier de tracking
     trackingFile = SPIFFS.open(strTrackingFile, FILE_APPEND); // ----- Ouverture du fichier en écriture
     if (trackingFile) { 
@@ -70,6 +70,11 @@ void logTracking(String strTrackingText){ // ---------------------- Ecriture dan
     }
 }
 
+/**
+ * \fn void setupSPIFFS(bool bFormat = false)
+ * \brief Initialisation du système de fichier
+ * \param bFormat : formatage du système de fichier
+ */
 void setupSPIFFS(bool bFormat = false){ // -------------------------- Initialisation du système de fichier
 
     MYDEBUG_PRINTLN("-SPIFFS : Montage du système de fichier"); 
@@ -193,7 +198,7 @@ void setupSPIFFS(bool bFormat = false){ // -------------------------- Initialisa
             }
         }
 
-        if (SPIFFS.exists(strContactsFile)) { 
+        if (SPIFFS.exists(strContactsFile)) { // ------------------- Le fichier existe
             MYDEBUG_PRINTLN("-SPIFFS: Lecture du fichier contacts.json"); 
             contactsFile = SPIFFS.open(strContactsFile, "r"); 
             if (contactsFile) { 
@@ -221,7 +226,7 @@ void setupSPIFFS(bool bFormat = false){ // -------------------------- Initialisa
         } else {
             MYDEBUG_PRINTLN("-SPIFFS: contacts.json does not exist");
             File contactsFile = SPIFFS.open(strContactsFile, "w");
-            if (contactsFile) {
+            if (contactsFile) { // ------------------- Le fichier n'existe pas
                 MYDEBUG_PRINTLN("-SPIFFS: Fichier créé");
                 DynamicJsonDocument jsonDocument(1024);
                 JsonArray contactsArray = jsonDocument.createNestedArray("list_of_contacts");
@@ -244,7 +249,7 @@ void setupSPIFFS(bool bFormat = false){ // -------------------------- Initialisa
 
         }
 
-        if (SPIFFS.exists(strPositiveListFile)) {
+        if (SPIFFS.exists(strPositiveListFile)) { // ------------------- Le fichier existe
             MYDEBUG_PRINTLN("-SPIFFS: Lecture du fichier positivelist.json");
             positiveListFile = SPIFFS.open(strPositiveListFile, "r");
             if (positiveListFile) {
@@ -332,6 +337,7 @@ void saveConfig(struct Config config){
     }
 }
 
+// La fonction loadConfig() permet de charger les paramètres de configuration à partir du fichier config.json
 struct Config loadConfig(){
     configFile = SPIFFS.open(strConfigFile, "r");
     struct Config config;
@@ -355,6 +361,7 @@ struct Config loadConfig(){
     return config;
 }
 
+
 struct Contact {
     String id1;
     String id2;
@@ -371,6 +378,7 @@ int calculateDifferenceInDays(String currentTime, String contactTime) {
     return (t1 - t2) / 86400;
 }
 
+// Fonction pour supprimer un ID positif
 void deletePositive(String id) {
     // Open the file in read mode to read existing positive IDs
     File positiveListFile = SPIFFS.open(strPositiveListFile, "r");
@@ -435,6 +443,7 @@ void deletePositive(String id) {
 }
 
 
+// Fonction pour vérifier les contacts
 void checkContacts(String currentTime){
     // Array to store existing contacts
     Contact keepContacts[MAX_CONTACTS];
@@ -522,7 +531,7 @@ void checkContacts(String currentTime){
 }
 
 
-
+// Fonction pour sauvegarder un contact
 void saveContact(String id1, String id2, String timestamp){
     // Array to store existing contacts
     Contact contactsList[MAX_CONTACTS];
@@ -604,7 +613,7 @@ void saveContact(String id1, String id2, String timestamp){
     //checkContacts(timestamp);
 }
 
-
+// Fonction pour sauvegarder un contact
 void savePositiveContact(String id) {
     MYDEBUG_PRINTLN("Saving positive contact");
     // Array to store existing positive IDs
@@ -661,6 +670,7 @@ void savePositiveContact(String id) {
     }
 }
 
+// Fonction pour vérifier si un ID est positif
 void CheckAddPositive(String id) {
     // Array to store existing contacts
     Contact contactsList[MAX_CONTACTS];
