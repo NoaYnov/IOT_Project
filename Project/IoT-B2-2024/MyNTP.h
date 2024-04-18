@@ -24,6 +24,21 @@
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP);
 
+/**
+ * \brief Fonction de récupération de l'heure
+ * 
+ * Cette fonction permet de récupérer l'heure auprès d'un serveur de temps NTP.
+ * 
+ * \code{.cpp}
+ * void getNTP(){
+ *   MYDEBUG_PRINT("-NTP : ");
+ *   // mise à jour de l'heure
+ *   timeClient.update();
+ *   // Affichage de l'heure
+ *   MYDEBUG_PRINTLN(timeClient.getFormattedTime());
+ * }
+ * \endcode
+ */
 void getNTP(){
   MYDEBUG_PRINT("-NTP : ");
   // mise à jour de l'heure

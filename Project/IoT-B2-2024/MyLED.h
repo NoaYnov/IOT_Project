@@ -29,6 +29,7 @@
  #define LED_PIN    23                  // PIN + de la LED
 int PWMRANGE = 256;
 
+// Configuration de la LED
  void setupLED() {
   pinMode(LED_PIN, OUTPUT);     // Configuration de la LED_PIN en sortie
   digitalWrite(LED_PIN, LOW);   // Initialisation de l'état de la LED
@@ -45,6 +46,7 @@ int PWMRANGE = 256;
   }
 }
 
+// Fonction pour jouer avec la LED
 void playWithLED(){
   // On augmente la fréquence PWN de 0 au Maximum
   // Pour la valeur maximale on utilisera PWMRANGE

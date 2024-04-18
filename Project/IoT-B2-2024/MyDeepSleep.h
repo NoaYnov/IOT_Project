@@ -19,6 +19,21 @@
 
 RTC_DATA_ATTR int bootCount = 0;
 
+/**
+ * \brief Fonction de mise en veille profonde
+ * 
+ * Cette fonction permet de mettre en veille profonde l'ESP32 pour une durée de 3 secondes.
+ * 
+ * \code{.cpp}
+ * void myDeepSleep(){
+ *   MYDEBUG_PRINT("-DEEPSLEEP : ");
+ *   MYDEBUG_PRINTLN(bootCount++);
+ *   MYDEBUG_PRINTLN("-DEEPSLEEP : DeepSleep pendant 3 secondes");
+ *   esp_sleep_enable_timer_wakeup(TIME_TO_SLEEP * uS_TO_S_FACTOR);
+ *   esp_deep_sleep_start();
+ * }
+ * \endcode
+ */
 void myDeepSleep(){
   MYDEBUG_PRINT("-DEEPSLEEP : ");
   MYDEBUG_PRINTLN(bootCount++);

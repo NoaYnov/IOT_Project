@@ -31,6 +31,7 @@
 DHT_Unified myDht(DHT_PIN, DHT_TYPE); // Instantiation du DHT Unified
 uint32_t delayMS = 5000;              // Délai entre 2 mesures
 
+// Fonction de configuration du capteur DHT
 void setupDhtSensor(){
   myDht.begin();
 
@@ -63,6 +64,7 @@ void setupDhtSensor(){
   MYDEBUG_PRINTLN("------------------------------------");
 }
 
+// Fonction de récupération des données du capteur DHT
 void getDhtData(){
 
   // Délai minimum entre 2 mesures

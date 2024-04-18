@@ -25,6 +25,25 @@ void loop2( void * parameter )
   }
 }
 
+/**
+ * \brief Fonction de configuration du Core 0
+ * 
+ * Cette fonction permet de configurer le Core 0 pour y affecter une tâche.
+ * 
+ * \code{.cpp}
+ * void setupMyCore0(){
+ *   // Initialisation d'une tâche que nous allons mettre sur le Core 0
+ *   xTaskCreatePinnedToCore(
+ *     loop2,          // Nom de la fonction associée à la tâche
+ *     "secondLoop",   // Nom de la tâche
+ *     10000,           // Taille mémoire assignée à la tâche
+ *     NULL,           // Mettre NULL dans tous les cas
+ *     0,              // Priorité de la tâche : 0 étant la haute priorité. *IMPORTANT* Si priorité 1 et pas d'activité sur la tâche alors l'ESP est redémarré
+ *     &Task1,         // Reference d'une variable taskHandle
+ *     0);             // Choisir le core 0 ou 1
+ * }
+ * \endcode
+ */
 void setupMyCore0(){
   // Initialisation d'une tâche que nous allons mettre sur le Core 0
   xTaskCreatePinnedToCore(

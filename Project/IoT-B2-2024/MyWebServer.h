@@ -218,6 +218,9 @@ void handleAdafruit() {
   monWebServeur.send(200, "text/html", out);
 }
 
+/**
+ * Fonction de gestion de la route /contact_tracer
+ */
 void handleContactTracer() {
     struct Config config = loadConfig();
     String contactName; // Variable to store the contact name

@@ -142,7 +142,9 @@ void contactListCallback(char *data, uint16_t len) {
     MYDEBUG_PRINTLN(data);
 }
 
-
+/**
+ * Publication de l'état de santé
+ */
 void pubEtatSante(String etat, String nom) {
   if (etat == "Positif") {
     MYDEBUG_PRINTLN("-AdafruitIO : Publication de mon état de santé : Positif");

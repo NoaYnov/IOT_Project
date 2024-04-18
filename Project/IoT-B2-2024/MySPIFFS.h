@@ -56,6 +56,7 @@ String strTrackingFile("/spiffs_tracking.txt"); // ------------------ Nom du fic
 File configFile, trackingFile, contactsFile, positiveListFile; // --- Fichiers
 const int MAX_CONTACTS = 50; // ------------------------------------- Maximum number of contacts
 
+
 void logTracking(String strTrackingText){ // ---------------------- Ecriture dans le fichier de tracking
     trackingFile = SPIFFS.open(strTrackingFile, FILE_APPEND); // ----- Ouverture du fichier en écriture
     if (trackingFile) { 
