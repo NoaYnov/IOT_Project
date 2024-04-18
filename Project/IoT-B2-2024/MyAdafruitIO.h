@@ -51,8 +51,10 @@
 // Connexion Adafruit
 #define IO_SERVER         "io.adafruit.com"
 #define IO_SERVERPORT     1883
-#define IO_USERNAME       "user21324"
-#define IO_KEY            "aio_NYVq84K86xKebjnA5W486qwGHGoy"
+#define IO_USERNAME    "user123841294"
+#define IO_USERNAME2    "user21324"
+#define IO_KEY            "aio_Myzr43AsYOGv7TjiYhUh9gZxj43E"
+#define IO_KEY2           "aio_LDbQ75c3fuVnhNlc7nOtD4vGGWmm"
 // Feeds
 #define FEED_ONOFF        "/feeds/onoff"
 //#define FEED_ES_MOI       "/feeds/maxime.etat-de-sante"
@@ -67,7 +69,10 @@
 // Instanciation du client WiFi qui servira à se connecter au broker Adafruit
 WiFiClient client;
 // Instanciation du client Adafruit avec les informations de connexion
-Adafruit_MQTT_Client MyAdafruitMqtt(&client, IO_SERVER, IO_SERVERPORT, IO_USERNAME, IO_USERNAME, IO_KEY);
+//Carte 1
+//Adafruit_MQTT_Client MyAdafruitMqtt(&client, IO_SERVER, IO_SERVERPORT, IO_USERNAME, IO_USERNAME, IO_KEY);
+//Carte 2
+Adafruit_MQTT_Client MyAdafruitMqtt(&client, IO_SERVER, IO_SERVERPORT, IO_USERNAME2, IO_USERNAME2, IO_KEY2);
 // Variable de stockage de la valeur du slider
 uint32_t uiSliderValue=0;
 Ticker MyAdafruitTicker;
@@ -218,7 +223,8 @@ void setupAdafruitIO() {
  */
 void connectAdafruitIO() {
   if (MyAdafruitMqtt.connected()) { return; }                      // Si déjà connecté, alors c'est tout bon
-
+  MYDEBUG_PRINT("-AdafruitIO : Utilisation du compte : ");
+  MYDEBUG_PRINTLN(IO_USERNAME);
   MYDEBUG_PRINT("-AdafruitIO : Connexion au broker ... ");
   int8_t ret;
   while ((ret = MyAdafruitMqtt.connect()) != 0) {                  // Retourne 0 si déjà connecté

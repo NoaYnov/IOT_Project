@@ -224,6 +224,7 @@ void handleContactTracer() {
     String contactDate; // Variable to store the contact date
     String positiveContactName; // Variable to store the positive contact name
     String etat = getEtatSante(DEVICE_NAME); // Variable to store the health state of the device
+    String nom = DEVICE_NAME;
 
     if (monWebServeur.args() > 0) {
         // Form data was submitted, print it in the console
@@ -376,6 +377,9 @@ void handleContactTracer() {
     out+= "    </div>";
     out+= "<div class='add-contact'>";
     out+= "   <h3>Vous êtes actuellement : "+etat+"</h3>";
+    out+= "</div>";
+    out+= "<div class='add-contact'>";
+    out+= "   <h3>Vous êtes actuellement : "+nom+"</h3>";
     out+= "</div>";
     out+= "<script>";
     out+= "    function setCurrentDateTime() {"; // Function to set the current date and time in the hidden input field

@@ -46,7 +46,12 @@
 */
 
 #define MYDEBUG         1 
-#define DEVICE_NAME     "ESP32-ENZO"                          // Nom de votre serveur BLE qui sera détecté par les autres
+//Carte 1
+//#define DEVICE_NAME    "ESP32-VALENTIN"                    // Nom de votre serveur BLE qui sera détecté par les autres
+//Carte 2
+#define DEVICE_NAME    "ESP32-ENZO"                         // Nom de votre serveur BLE qui sera détecté par les autres
+//Penser à également changer le compte adafruit dans MyAdafruitIO
+                  
 // Variables globales, accessibles depuis tous les fichiers
 int i=0;              // pour la loop
 // double dSliderValue;  // pour le slider

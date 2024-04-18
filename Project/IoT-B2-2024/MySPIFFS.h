@@ -666,6 +666,11 @@ void CheckAddPositive(String id) {
     int numContacts = 0;
     bool idFound = false;
 
+    if (id == DEVICE_NAME) {
+        MYDEBUG_PRINTLN("ID trouvé dans la liste des positifs");
+        return;
+    }
+
     // Open the file in read mode to read existing contacts
     contactsFile = SPIFFS.open(strContactsFile, "r");
     if (contactsFile) {
